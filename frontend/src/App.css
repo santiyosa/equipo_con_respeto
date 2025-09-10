@@ -1,0 +1,26 @@
+#root {
+  min-height: 100vh;
+}
+
+.App {
+  text-align: center;
+  padding: 2rem;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 2rem;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+}
+
+p {
+  margin: 0;
+  font-size: 1.2rem;
+}

@@ -1,0 +1,251 @@
+import { useState, useEffect } from 'react'
+import ModalBusquedaGlobal from './ModalBusquedaGlobal'
+import NotificacionAtajo from './NotificacionAtajo'
+
+type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion'
+
+interface LayoutProps {
+  children: React.ReactNode
+  currentPage: Page
+  setCurrentPage: (page: Page) => void
+}
+
+interface ResultadoBusqueda {
+  id: string
+  tipo: 'jugador' | 'multa' | 'egreso'
+  titulo: string
+  subtitulo: string
+  icono: string
+  datos: any
+}
+
+function Layout({ children, currentPage, setCurrentPage }: LayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [modalBusquedaOpen, setModalBusquedaOpen] = useState(false)
+  const [mostrarNotificacion, setMostrarNotificacion] = useState(false)
+  const isActive = (page: string) => currentPage === page
+
+  // Mostrar notificación al cargar por primera vez
+  useEffect(() => {
+    const hasSeenNotification = localStorage.getItem('hasSeenSearchNotification')
+    if (!hasSeenNotification) {
+      setTimeout(() => setMostrarNotificacion(true), 2000) // Mostrar después de 2 segundos
+    }
+  }, [])
+
+  const cerrarNotificacion = () => {
+    setMostrarNotificacion(false)
+    localStorage.setItem('hasSeenSearchNotification', 'true')
+  }
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  const handlePageChange = (page: Page) => {
+    setCurrentPage(page)
+    setMobileMenuOpen(false) // Cerrar menú al navegar en móvil
+  }
+
+  const manejarResultadoBusqueda = (resultado: ResultadoBusqueda) => {
+    setModalBusquedaOpen(false)
+    
+    if (resultado.tipo === 'jugador') {
+      // Navegar a la página de jugadores y mostrar el jugador seleccionado
+      setCurrentPage('jugadores')
+      // Aquí podrías implementar un scroll hacia el jugador o destacarlo
+    } else if (resultado.tipo === 'multa') {
+      // Navegar a la página de multas
+      setCurrentPage('multas')
+    } else if (resultado.tipo === 'egreso') {
+      // Navegar a la página de finanzas
+      setCurrentPage('finanzas')
+    }
+  }
+
+  // Manejar atajo de teclado para búsqueda
+  useEffect(() => {
+    const manejarAtajo = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault()
+        setModalBusquedaOpen(true)
+      }
+    }
+
+    document.addEventListener('keydown', manejarAtajo)
+    return () => document.removeEventListener('keydown', manejarAtajo)
+  }, [])
+
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-40">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo y título */}
+            <div className="flex items-center">
+              <button
+                onClick={toggleMobileMenu}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div className="flex items-center ml-2 lg:ml-0">
+                <div className="flex-shrink-0">
+                  <span className="text-2xl">⚽</span>
+                </div>
+                <div className="ml-3">
+                  <h1 className="text-xl font-bold text-gray-900">Gestión Deportiva</h1>
+                </div>
+              </div>
+            </div>
+
+            {/* Barra de búsqueda y acciones */}
+            <div className="flex items-center space-x-4">
+              {/* Botón de búsqueda */}
+              <button
+                onClick={() => setModalBusquedaOpen(true)}
+                className="hidden sm:flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-500 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Buscar...
+                <span className="ml-auto text-xs text-gray-400">⌘K</span>
+              </button>
+
+              {/* Botón de búsqueda móvil */}
+              <button
+                onClick={() => setModalBusquedaOpen(true)}
+                className="sm:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              {/* Avatar/Usuario */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-white">AD</span>
+                </div>
+                <span className="hidden sm:block text-sm font-medium text-gray-700">Admin</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Notificación de atajo */}
+      {mostrarNotificacion && (
+        <NotificacionAtajo mostrar={mostrarNotificacion} onCerrar={cerrarNotificacion} />
+      )}
+
+      {/* Modal de búsqueda */}
+      <ModalBusquedaGlobal 
+        isOpen={modalBusquedaOpen} 
+        onClose={() => setModalBusquedaOpen(false)}
+        onResultadoSeleccionado={manejarResultadoBusqueda}
+      />
+
+      {/* Overlay para móvil */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-16 h-screen w-full bg-gray-800 text-white overflow-y-auto p-4 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:w-64 lg:h-[calc(100vh-4rem)] z-30 ${
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <nav className="space-y-2">
+          <button 
+            onClick={() => handlePageChange('dashboard')}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
+              isActive('dashboard') 
+                ? 'bg-blue-600 text-white' 
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <span className="text-lg mr-3">📊</span>
+            <span className="font-medium">Dashboard</span>
+          </button>
+
+          <button 
+            onClick={() => handlePageChange('pagos')}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
+              isActive('pagos') 
+                ? 'bg-blue-600 text-white' 
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <span className="text-lg mr-3">💸</span>
+            <span className="font-medium">Pagos</span>
+          </button>
+          
+          <button 
+            onClick={() => handlePageChange('jugadores')}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
+              isActive('jugadores') 
+                ? 'bg-blue-600 text-white' 
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <span className="text-lg mr-3">👥</span>
+            <span className="font-medium">Jugadores</span>
+          </button>
+          
+          <button 
+            onClick={() => handlePageChange('multas')}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
+              isActive('multas') 
+                ? 'bg-blue-600 text-white' 
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <span className="text-lg mr-3">💰</span>
+            <span className="font-medium">Multas</span>
+          </button>
+          
+          <button 
+            onClick={() => handlePageChange('finanzas')}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
+              isActive('finanzas') 
+                ? 'bg-blue-600 text-white' 
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <span className="text-lg mr-3">📈</span>
+            <span className="font-medium">Finanzas</span>
+          </button>
+
+          <button 
+            onClick={() => handlePageChange('configuracion')}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
+              isActive('configuracion') 
+                ? 'bg-blue-600 text-white' 
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <span className="text-lg mr-3">⚙️</span>
+            <span className="font-medium">Configuración</span>
+          </button>
+          
+          {/* Separador */}
+          <div className="my-4 border-t border-gray-700"></div>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="pt-16 lg:ml-64 p-4 lg:p-12 min-h-screen relative z-10">
+        {children}
+      </main>
+    </div>
+  )
+}
+
+export default Layout
