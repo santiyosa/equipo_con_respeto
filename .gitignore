@@ -3,6 +3,20 @@
 *.tmp
 *.temp
 
+# Scripts temporales y de debug
+admin_final.ps1
+admin_panel_working.ps1
+**/debug_*.py
+**/test_crear_*.py
+**/test_login_*.py
+**/test_segundo_*.py
+
+# Archivos duplicados de componentes
+frontend/src/pages/*_backup.tsx
+frontend/src/pages/*_broken.tsx
+frontend/src/pages/*_debug.tsx
+frontend/src/pages/*_fixed.tsx
+
 # Archivos de documentación vacíos o temporales
 *.md
 
@@ -14,6 +28,19 @@ init_db_*.py
 # Archivos de base de datos temporales
 *.db-shm
 *.db-wal
+
+# Backups de base de datos (mantener local)
+backups/
+*.db.backup
+*.db.bak
+
+# Scripts de administración sensibles (solo para administradores)  
+backup_db.ps1
+backup_simple.ps1
+backend/limpiar_db.py
+backend/init_admin.py
+backend/export_db.py
+backend/estado_db.py
 
 # Logs
 *.log

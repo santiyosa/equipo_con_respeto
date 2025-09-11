@@ -5,6 +5,7 @@ import models
 from schemas import jugadores as schemas
 from services.estado_cuenta_service import EstadoCuentaService
 from typing import List, Optional
+import hashlib
 
 def get_jugador(db: Session, cedula: str):
     return db.query(models.Jugador).filter(models.Jugador.cedula == cedula).first()
@@ -16,10 +17,22 @@ def get_jugadores(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Jugador).offset(skip).limit(limit).all()
 
 def create_jugador(db: Session, jugador: schemas.JugadorCreate):
-    db_jugador = models.Jugador(**jugador.dict())
+    # Crear hash de la contraseña inicial (cédula)
+    password_hash = hashlib.sha256(jugador.cedula.encode()).hexdigest()
+    
+    # Crear el jugador con credenciales automáticas
+    jugador_data = jugador.dict()
+    jugador_data['password'] = password_hash  # Cédula como contraseña inicial
+    
+    db_jugador = models.Jugador(**jugador_data)
     db.add(db_jugador)
     db.commit()
     db.refresh(db_jugador)
+    
+    print(f"✅ Jugador creado: {jugador.nombre}")
+    print(f"📧 Email: {jugador.email}")
+    print(f"🔑 Contraseña inicial: {jugador.cedula} (puede cambiarla con recuperar contraseña)")
+    
     return db_jugador
 
 def buscar_jugadores(db: Session, termino: str):
@@ -79,7 +92,7 @@ def get_estado_cuenta_jugador(db: Session, cedula: str) -> schemas.EstadoCuentaJ
     if detalles_estado["al_dia"]:
         estado = "AL DÍA"
     else:
-        if jugador.posicion == "arquero":
+        if str(jugador.posicion) == "arquero":
             estado = "ARQUERO CON MULTAS PENDIENTES"
         elif total_multas_pendientes > 0:
             if "mensualidades_pendientes" in detalles_estado and detalles_estado["mensualidades_pendientes"] > 0:
@@ -118,11 +131,60 @@ def update_jugador(db: Session, cedula: str, jugador: schemas.JugadorUpdate):
 
 def cambiar_estado_jugador(db: Session, cedula: str, activo: bool):
     """Cambia el estado activo/inactivo de un jugador"""
-    db_jugador = get_jugador(db, cedula)
-    if not db_jugador:
-        return None
+    try:
+        # Actualizar usando query para evitar problemas de tipo
+        result = db.query(models.Jugador).filter(
+            models.Jugador.cedula == cedula
+        ).update({"activo": activo})
+        
+        if result == 0:
+            return None  # No se encontró el jugador
+        
+        db.commit()
+        
+        # Retornar el jugador actualizado
+        return get_jugador(db, cedula)
     
-    db_jugador.activo = activo
-    db.commit()
-    db.refresh(db_jugador)
-    return db_jugador
+    except Exception as e:
+        db.rollback()
+        print(f"Error cambiando estado del jugador: {e}")
+        return None
+
+def get_jugador_by_email(db: Session, email: str):
+    """Obtiene un jugador por su email"""
+    return db.query(models.Jugador).filter(models.Jugador.email == email).first()
+
+def verificar_credenciales_jugador(db: Session, email: str, password: str) -> bool:
+    """Verifica las credenciales de un jugador"""
+    jugador = get_jugador_by_email(db, email)
+    if not jugador or jugador.password is None:
+        return False
+    
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    return str(jugador.password) == hashed_password
+
+def actualizar_credenciales_jugador(db: Session, cedula: str, email: str, password: str) -> bool:
+    """Actualiza email y contraseña de un jugador"""
+    try:
+        jugador = get_jugador(db, cedula)
+        if not jugador:
+            return False
+        
+        # Hash de la contraseña
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        
+        # Actualizar en la base de datos
+        db.query(models.Jugador).filter(
+            models.Jugador.cedula == cedula
+        ).update({
+            "email": email,
+            "password": password_hash
+        })
+        
+        db.commit()
+        return True
+    
+    except Exception as e:
+        db.rollback()
+        print(f"Error actualizando credenciales del jugador: {e}")
+        return False

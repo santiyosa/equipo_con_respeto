@@ -51,10 +51,43 @@ def get_multas_completas(db: Session, incluir_pagadas: bool = False):
     return multas_completas
 
 def get_multas_jugador(db: Session, cedula: str, incluir_pagadas: bool = False):
-    query = db.query(models.Multa).filter(models.Multa.jugador_cedula == cedula)
+    """
+    Obtiene las multas de un jugador específico con información completa de la causal
+    """
+    query = db.query(
+        models.Multa,
+        models.Jugador.nombre.label('jugador_nombre'),
+        models.CausalMulta.descripcion.label('causal_descripcion'),
+        models.CausalMulta.valor.label('causal_valor')
+    ).join(
+        models.Jugador, models.Multa.jugador_cedula == models.Jugador.cedula
+    ).join(
+        models.CausalMulta, models.Multa.causal_id == models.CausalMulta.id
+    ).filter(models.Multa.jugador_cedula == cedula)
+    
     if not incluir_pagadas:
         query = query.filter(models.Multa.pagada == False)
-    return query.all()
+    
+    results = query.all()
+    
+    # Convertir a formato MultaCompleta similar al get_multas()
+    multas_completas = []
+    for multa, jugador_nombre, causal_descripcion, causal_valor in results:
+        multa_completa = {
+            'id': multa.id,
+            'jugador_cedula': multa.jugador_cedula,
+            'jugador_nombre': jugador_nombre,
+            'causal_id': multa.causal_id,
+            'causal_descripcion': causal_descripcion,
+            'causal_valor': causal_valor,
+            'fecha_multa': multa.fecha_multa,
+            'pagada': multa.pagada,
+            'fecha_pago': multa.fecha_pago,
+            'registrado_por': multa.registrado_por
+        }
+        multas_completas.append(multa_completa)
+    
+    return multas_completas
 
 def crear_multa(db: Session, multa: schemas.MultaCreate, admin_id: int):
     # Verificar que existe el jugador

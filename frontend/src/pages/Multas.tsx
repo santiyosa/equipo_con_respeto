@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { multasService, jugadoresService } from '../services/api'
 import ControlesPaginacion from '../components/ControlesPaginacion'
 import { usePaginacion } from '../hooks/usePaginacion'
+import { useAuth } from '../contexts/AuthContext'
 
 // Tipos para la gestión de multas (alineados con backend)
 interface CausalMulta {
@@ -31,6 +32,8 @@ interface Jugador {
 type ModalMode = 'create' | 'edit' | 'view' | null
 
 function Multas() {
+  const { isJugador, user } = useAuth()
+  
   // Función auxiliar para obtener la fecha local en formato YYYY-MM-DD
   const obtenerFechaLocal = () => {
     const ahora = new Date()
@@ -79,13 +82,11 @@ function Multas() {
   ]
 
   useEffect(() => {
-    console.log('Multas component mounted')
     loadInitialData()
   }, [])
 
   const loadInitialData = async () => {
     try {
-      console.log('Loading initial data...')
       await Promise.all([
         fetchMultas(),
         fetchJugadores(), 
@@ -98,9 +99,14 @@ function Multas() {
 
   const fetchMultas = async () => {
     try {
-      console.log('Fetching multas...')
-      const data = await multasService.getMultas(true) // incluir todas las multas
-      console.log('Multas received:', data)
+      let data
+      if (isJugador && user?.cedula) {
+        // Los jugadores solo ven sus propias multas
+        data = await multasService.getMultasByJugador(user.cedula)
+      } else {
+        // Los admins ven todas las multas
+        data = await multasService.getMultas(true)
+      }
       setMultas(Array.isArray(data) ? data : [])
       setError(null)
     } catch (err) {
@@ -113,10 +119,14 @@ function Multas() {
   }
 
   const fetchJugadores = async () => {
+    // Los jugadores no necesitan ver la lista de todos los jugadores
+    if (isJugador) {
+      setJugadores([])
+      return
+    }
+    
     try {
-      console.log('Fetching jugadores...')
       const data = await jugadoresService.getJugadores()
-      console.log('Jugadores received:', data)
       setJugadores(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Error fetching jugadores:', err)
@@ -126,9 +136,7 @@ function Multas() {
 
   const fetchCausales = async () => {
     try {
-      console.log('Fetching causales...')
       const data = await multasService.getCausales()
-      console.log('Causales received:', data)
       setCausales(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Error fetching causales:', err)
@@ -260,7 +268,18 @@ function Multas() {
       setError(null)
     } catch (err: any) {
       console.error('Error saving multa:', err)
-      const errorMessage = err.response?.data?.detail || 'Error al guardar la multa'
+      let errorMessage = 'Error al guardar la multa'
+      
+      if (err.response?.data?.detail) {
+        // Si el detalle es un string, usarlo directamente
+        if (typeof err.response.data.detail === 'string') {
+          errorMessage = err.response.data.detail
+        } else {
+          // Si es un objeto o array, convertirlo a string
+          errorMessage = JSON.stringify(err.response.data.detail)
+        }
+      }
+      
       setError(errorMessage)
     }
   }
@@ -326,7 +345,18 @@ function Multas() {
 
     } catch (err: any) {
       console.error('Error creating aporte grupal:', err)
-      const errorMessage = err.response?.data?.detail || 'Error al crear el aporte grupal'
+      let errorMessage = 'Error al crear el aporte grupal'
+      
+      if (err.response?.data?.detail) {
+        // Si el detalle es un string, usarlo directamente
+        if (typeof err.response.data.detail === 'string') {
+          errorMessage = err.response.data.detail
+        } else {
+          // Si es un objeto o array, convertirlo a string
+          errorMessage = JSON.stringify(err.response.data.detail)
+        }
+      }
+      
       setError(errorMessage)
     }
   }
@@ -346,7 +376,6 @@ function Multas() {
   }
 
   // Render
-  console.log('Rendering Multas component', { loading, error, multasCount: multas.length })
 
   if (loading) {
     return (
@@ -361,22 +390,24 @@ function Multas() {
       {/* Header */}
       <div className="flex justify-between items-center mb-8 lg:mt-4">
         <h1 className="text-3xl font-bold text-gray-900">
-          Gestión de Multas
+          {isJugador ? 'Mis Multas' : 'Gestión de Multas'}
         </h1>
-        <div className="flex space-x-3">
-          <button
-            onClick={() => setShowAporteGrupal(true)}
-            className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            💰 Aporte Grupal
-          </button>
-          <button
-            onClick={() => openModal('create')}
-            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            + Nueva Multa
-          </button>
-        </div>
+        {!isJugador && (
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowAporteGrupal(true)}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              💰 Aporte Grupal
+            </button>
+            <button
+              onClick={() => openModal('create')}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              + Nueva Multa
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Error Message */}
@@ -535,18 +566,22 @@ function Multas() {
                       >
                         Ver
                       </button>
-                      <button
-                        onClick={() => openModal('edit', multa)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(multa)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Eliminar
-                      </button>
+                      {!isJugador && (
+                        <>
+                          <button
+                            onClick={() => openModal('edit', multa)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(multa)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Eliminar
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 )

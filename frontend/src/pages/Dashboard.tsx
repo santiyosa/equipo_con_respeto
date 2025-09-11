@@ -52,22 +52,16 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  console.log('Dashboard component rendered')
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        console.log('Fetching dashboard data...')
         
         // Obtener datos del dashboard y estadísticas de multas en paralelo
         const [dashboardData, multasData] = await Promise.all([
           dashboardService.getDashboardData(),
           dashboardService.getEstadisticasMultas()
         ])
-        
-        console.log('Dashboard data received:', dashboardData)
-        console.log('Multas statistics received:', multasData)
         
         setData(dashboardData)
         setEstadisticasMultas(multasData)
@@ -85,7 +79,6 @@ function Dashboard() {
 
   const handleDownloadReport = async () => {
     try {
-      console.log('Downloading report...')
       const blob = await dashboardService.downloadReport()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -96,7 +89,6 @@ function Dashboard() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-      console.log('Report downloaded successfully')
     } catch (error) {
       console.error('Error downloading report:', error)
     }
@@ -126,14 +118,12 @@ function Dashboard() {
     )
   }
 
-  console.log('Data structure:', data)
-
   return (
     <div>
       {/* Header con botón de descarga */}
       <div className="flex justify-between items-center mb-8 lg:mt-4">
         <h1 className="text-3xl font-bold text-gray-900">
-          Resumen General
+          Resumen General Equipo
         </h1>
         <button
           onClick={handleDownloadReport}

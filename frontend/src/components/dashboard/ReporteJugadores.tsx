@@ -16,7 +16,6 @@ const ReporteJugadores: React.FC<ReporteJugadoresProps> = ({ className = '' }) =
       setError(null)
       setSuccess(false)
 
-      console.log('Descargando reporte ejecutivo del dashboard...')
       const blob = await dashboardService.downloadReport()
       
       // Crear URL para descargar el archivo
@@ -33,7 +32,6 @@ const ReporteJugadores: React.FC<ReporteJugadoresProps> = ({ className = '' }) =
       document.body.removeChild(a)
       
       setSuccess(true)
-      console.log('Reporte descargado exitosamente')
       
       // Limpiar mensaje de éxito después de 3 segundos
       setTimeout(() => setSuccess(false), 3000)

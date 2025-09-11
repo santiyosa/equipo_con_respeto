@@ -8,6 +8,7 @@ class JugadorBase(BaseModel):
     nombre: str
     cedula: str
     telefono: str
+    email: str  # Email para credenciales
     fecha_nacimiento: date
     talla_uniforme: str
     numero_camiseta: Optional[int]

@@ -11,7 +11,7 @@ try:
         # Crear la configuración inicial de mensualidad
         conn.execute(text("""
             INSERT INTO configuraciones (clave, valor, descripcion) 
-            VALUES ('mensualidad', 50000.00, 'Valor de la mensualidad del equipo')
+            VALUES ('mensualidad', 20000.00, 'Valor de la mensualidad del equipo')
             ON CONFLICT (clave) DO NOTHING
         """))
         conn.commit()

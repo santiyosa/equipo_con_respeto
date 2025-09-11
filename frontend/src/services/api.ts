@@ -8,6 +8,15 @@ const api = axios.create({
   },
 })
 
+// Interceptor para agregar token de autenticación
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 // Interceptor para manejo de errores
 api.interceptors.response.use(
   (response) => response,
@@ -143,6 +152,11 @@ export const jugadoresService = {
 export const multasService = {
   async getMultas(incluirPagadas: boolean = false) {
     const response = await api.get(`/api/multas/completas/?incluir_pagadas=${incluirPagadas}`)
+    return response.data
+  },
+
+  async getMultasByJugador(cedula: string, incluirPagadas: boolean = false) {
+    const response = await api.get(`/api/multas/jugador/${cedula}?incluir_pagadas=${incluirPagadas}`)
     return response.data
   },
 

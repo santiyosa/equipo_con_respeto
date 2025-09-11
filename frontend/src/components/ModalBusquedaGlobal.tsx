@@ -86,18 +86,11 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
 
     setCargando(true)
     try {
-      console.log('Iniciando búsqueda para:', query)
       const [jugadores, multas, egresos] = await Promise.all([
         buscarJugadores(query),
         buscarMultas(query),
         buscarEgresos(query)
       ])
-
-      console.log('Resultados de búsqueda:', {
-        jugadores: jugadores.length,
-        multas: multas.length,
-        egresos: egresos.length
-      })
 
       const todosResultados = [
         ...jugadores.map((j: any) => ({
@@ -126,7 +119,6 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
         }))
       ]
 
-      console.log('Resultados finales:', todosResultados.length)
       setResultados(todosResultados)
       setSelectedIndex(-1)
     } catch (error) {
@@ -138,10 +130,7 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
 
   const buscarJugadores = async (termino: string) => {
     try {
-      console.log('Buscando jugadores...')
       const jugadores = await jugadoresService.getJugadores()
-      console.log('Jugadores obtenidos:', jugadores.length)
-      console.log('Primer jugador:', jugadores[0])
       
       const filtrados = jugadores.filter((j: any) => 
         j.nombre?.toLowerCase().includes(termino.toLowerCase()) ||
@@ -150,7 +139,6 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
         (j.numero_camiseta && j.numero_camiseta.toString().includes(termino))
       )
       
-      console.log('Jugadores filtrados:', filtrados.length)
       return filtrados
     } catch (error) {
       console.error('Error buscando jugadores:', error)

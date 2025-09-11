@@ -95,7 +95,7 @@ def eliminar_multa(
     crud.eliminar_multa(db, multa_id)
     return {"message": "Multa eliminada exitosamente"}
 
-@router.get("/multas/jugador/{cedula}", response_model=List[schemas.Multa])
+@router.get("/multas/jugador/{cedula}", response_model=List[schemas.MultaCompleta])
 def listar_multas_jugador(
     cedula: str,
     incluir_pagadas: bool = False,

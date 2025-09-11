@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { multasService, configuracionesService } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 
 interface CausalMulta {
   id: number
@@ -35,6 +36,17 @@ interface NuevaPosicion {
 }
 
 function Configuracion() {
+  const { isJugador } = useAuth()
+
+  // Los jugadores no tienen acceso a las configuraciones del sistema
+  if (isJugador) {
+    return (
+      <div className="text-center py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Acceso Restringido</h2>
+        <p className="text-gray-600">No tienes permisos para acceder a esta sección.</p>
+      </div>
+    )
+  }
   const [causales, setCausales] = useState<CausalMulta[]>([])
   const [mensualidad, setMensualidad] = useState<number>(0)
   const [posiciones, setPosiciones] = useState<PosicionJuego[]>([])
@@ -164,8 +176,14 @@ function Configuracion() {
         }
         
         await fetchData()
-      } catch (apiError) {
-        console.warn('API no disponible, simulando guardado:', apiError)
+      } catch (apiError: any) {
+        console.error('Error detallado de API:', {
+          error: apiError,
+          message: apiError?.message,
+          response: apiError?.response?.data,
+          status: apiError?.response?.status,
+          config: apiError?.config
+        })
         
         // Simular guardado local
         if (editandoCausal) {
@@ -244,33 +262,44 @@ function Configuracion() {
     }
 
     try {
-      try {
-        await configuracionesService.updateConfiguracion('mensualidad', {
-          valor: nuevoValorMensualidad,
-          descripcion: 'Valor de la mensualidad del equipo'
-        })
-        
-        setMensualidad(nuevoValorMensualidad)
-        setEditandoMensualidad(false)
-        setSuccess('Mensualidad actualizada exitosamente')
-        await fetchData()
-      } catch (apiError) {
-        console.warn('API no disponible, simulando actualización:', apiError)
-        
-        // Simular actualización local
-        setMensualidad(nuevoValorMensualidad)
-        setEditandoMensualidad(false)
-        setSuccess('Mensualidad actualizada exitosamente (modo offline)')
+      // Intentar actualizar la configuración existente
+      await configuracionesService.updateConfiguracion('mensualidad', {
+        valor: nuevoValorMensualidad,
+        descripcion: 'Valor de la mensualidad del equipo'
+      })
+      
+      setMensualidad(nuevoValorMensualidad)
+      setEditandoMensualidad(false)
+      setSuccess('Mensualidad actualizada exitosamente')
+      await fetchData()
+    } catch (updateError: any) {
+      // Si falla con 404, intentar crear la configuración
+      if (updateError?.response?.status === 404) {
+        try {
+          await configuracionesService.createConfiguracion({
+            clave: 'mensualidad',
+            valor: nuevoValorMensualidad,
+            descripcion: 'Valor de la mensualidad del equipo'
+          })
+          
+          setMensualidad(nuevoValorMensualidad)
+          setEditandoMensualidad(false)
+          setSuccess('Mensualidad creada exitosamente')
+          await fetchData()
+        } catch (createError: any) {
+          console.error('Error creating mensualidad:', createError)
+          setError('Error al crear la configuración de mensualidad')
+        }
+      } else {
+        console.error('Error updating mensualidad:', updateError)
+        const errorMessage = updateError.response?.data?.detail || 'Error al actualizar la mensualidad'
+        setError(errorMessage)
       }
-    } catch (err: any) {
-      console.error('Error updating mensualidad:', err)
-      const errorMessage = err.response?.data?.detail || 'Error al actualizar la mensualidad'
-      setError(errorMessage)
     }
   }
 
   const cancelarEditarMensualidad = () => {
-    setNuevoValorMensualidad(mensualidad)
+    setNuevoValorMensualidad(0)
     setEditandoMensualidad(false)
   }
 

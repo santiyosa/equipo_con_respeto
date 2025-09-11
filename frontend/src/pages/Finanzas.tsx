@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { egresosService } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 
 interface CategoriaEgreso {
   id: number
@@ -29,6 +30,18 @@ interface NuevoEgreso {
 }
 
 function Finanzas() {
+  const { isJugador } = useAuth()
+
+  // Los jugadores no tienen acceso a la información financiera
+  if (isJugador) {
+    return (
+      <div className="text-center py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Acceso Restringido</h2>
+        <p className="text-gray-600">No tienes permisos para acceder a esta sección.</p>
+      </div>
+    )
+  }
+
   // Función auxiliar para obtener la fecha local en formato YYYY-MM-DD
   const obtenerFechaLocal = () => {
     const ahora = new Date()
@@ -147,17 +160,11 @@ function Finanzas() {
       // TODO: Implementar sistema de autenticación para obtener el ID del usuario actual
       const CURRENT_USER_ID = 1 // Temporal: usuario predeterminado
       
-      console.log('Datos a enviar:', {
+      await egresosService.createEgreso({
         ...nuevoEgreso,
         registrado_por: CURRENT_USER_ID
       })
       
-      const result = await egresosService.createEgreso({
-        ...nuevoEgreso,
-        registrado_por: CURRENT_USER_ID
-      })
-      
-      console.log('Resultado:', result)
       setSuccess('Egreso registrado exitosamente')
       setNuevoEgreso({
         categoria_id: 0,

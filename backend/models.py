@@ -13,6 +13,16 @@ class Administrador(Base):
     password = Column(String, nullable=False)
     rol = Column(String, nullable=False)
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, ForeignKey("administradores.email"), nullable=False)
+    token = Column(String, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
+
 class Jugador(Base):
     __tablename__ = "jugadores"
 
@@ -31,6 +41,9 @@ class Jugador(Base):
     posicion = Column(String, nullable=True, comment="Posición del jugador: 'arquero' para porteros, NULL o vacío para jugadores de campo")
     estado_cuenta = Column(Boolean, default=True, comment="Estado financiero del jugador")
     activo = Column(Boolean, default=True, comment="Indica si el jugador está activo en el equipo")
+    # Campos de autenticación
+    email = Column(String, nullable=True, comment="Email para autenticación (opcional)")
+    password = Column(String, nullable=True, comment="Contraseña hasheada para autenticación")
     created_at = Column(DateTime, nullable=False, server_default=func.current_timestamp())
 
     mensualidades = relationship("Mensualidad", back_populates="jugador")

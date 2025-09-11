@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { AuthProvider } from './contexts/AuthContext'
+import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Jugadores from './pages/Jugadores'
@@ -6,7 +8,6 @@ import Multas from './pages/Multas'
 import Finanzas from './pages/Finanzas'
 import Pagos from './pages/Pagos'
 import Configuracion from './pages/Configuracion'
-import './utils/debug' // Import debug utilities
 
 type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion'
 
@@ -33,9 +34,13 @@ function App() {
   }
 
   return (
-    <Layout currentPage={currentPage} setCurrentPage={setCurrentPage}>
-      {renderPage()}
-    </Layout>
+    <AuthProvider>
+      <PrivateRoute>
+        <Layout currentPage={currentPage} setCurrentPage={setCurrentPage}>
+          {renderPage()}
+        </Layout>
+      </PrivateRoute>
+    </AuthProvider>
   )
 }
 
