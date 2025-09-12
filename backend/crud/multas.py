@@ -40,11 +40,15 @@ def get_multas_completas(db: Session, incluir_pagadas: bool = False):
             'jugador_nombre': jugador_nombre,
             'causal_id': multa.causal_id,
             'causal_descripcion': causal_descripcion,
-            'causal_valor': causal_valor,
+            'causal_valor': causal_valor,  # Valor actual de la causal (para referencia)
+            'valor': multa.valor,  # Valor real de la multa al momento de creación
             'fecha_multa': multa.fecha_multa,
             'pagada': multa.pagada,
             'fecha_pago': multa.fecha_pago,
-            'registrado_por': multa.registrado_por
+            'registrado_por': multa.registrado_por,
+            'es_aporte_grupal': getattr(multa, 'es_aporte_grupal', False),
+            'grupo_multa_id': getattr(multa, 'grupo_multa_id', None),
+            'concepto_aporte': getattr(multa, 'concepto_aporte', None)
         }
         multas_completas.append(multa_completa)
     
@@ -79,11 +83,15 @@ def get_multas_jugador(db: Session, cedula: str, incluir_pagadas: bool = False):
             'jugador_nombre': jugador_nombre,
             'causal_id': multa.causal_id,
             'causal_descripcion': causal_descripcion,
-            'causal_valor': causal_valor,
+            'causal_valor': causal_valor,  # Valor actual de la causal (para referencia)
+            'valor': multa.valor,  # Valor real de la multa al momento de creación
             'fecha_multa': multa.fecha_multa,
             'pagada': multa.pagada,
             'fecha_pago': multa.fecha_pago,
-            'registrado_por': multa.registrado_por
+            'registrado_por': multa.registrado_por,
+            'es_aporte_grupal': getattr(multa, 'es_aporte_grupal', False),
+            'grupo_multa_id': getattr(multa, 'grupo_multa_id', None),
+            'concepto_aporte': getattr(multa, 'concepto_aporte', None)
         }
         multas_completas.append(multa_completa)
     
@@ -103,6 +111,7 @@ def crear_multa(db: Session, multa: schemas.MultaCreate, admin_id: int):
     db_multa = models.Multa(
         jugador_cedula=multa.jugador_cedula,
         causal_id=multa.causal_id,
+        valor=causal.valor,  # Guardar el valor actual de la causal
         registrado_por=admin_id,
         es_aporte_grupal=getattr(multa, 'es_aporte_grupal', False),
         grupo_multa_id=getattr(multa, 'grupo_multa_id', None),

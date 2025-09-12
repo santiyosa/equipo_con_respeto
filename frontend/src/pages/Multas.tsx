@@ -17,7 +17,8 @@ interface Multa {
   jugador_nombre?: string
   causal_id: number
   causal_descripcion?: string
-  causal_valor?: number
+  causal_valor?: number  // Valor actual de la causal (para referencia)
+  valor: number  // Valor real de la multa al momento de creación
   fecha_multa: string
   pagada: boolean
   fecha_pago?: string
@@ -101,8 +102,8 @@ function Multas() {
     try {
       let data
       if (isJugador && user?.cedula) {
-        // Los jugadores solo ven sus propias multas
-        data = await multasService.getMultasByJugador(user.cedula)
+        // Los jugadores solo ven sus propias multas (incluyendo pagadas para el cálculo del total)
+        data = await multasService.getMultasByJugador(user.cedula, true)
       } else {
         // Los admins ven todas las multas
         data = await multasService.getMultas(true)
@@ -160,7 +161,7 @@ function Multas() {
   }
 
   const getCausalValor = (multa: Multa) => {
-    return multa.causal_valor || 0
+    return multa.valor || 0  // Usar el valor de la multa, no el de la causal
   }
 
   const getEstadoInfo = (pagada: boolean) => {
@@ -200,7 +201,14 @@ function Multas() {
   }
 
   const calcularTotalRecaudado = () => {
-    return multas
+    let multasParaCalcular = multas
+    
+    // Si es jugador, solo calcular sus propias multas
+    if (isJugador && user?.cedula) {
+      multasParaCalcular = multas.filter(multa => multa.jugador_cedula === user.cedula)
+    }
+    
+    return multasParaCalcular
       .filter(multa => multa.pagada)
       .reduce((total, multa) => total + getCausalValor(multa), 0)
   }
@@ -443,7 +451,9 @@ function Multas() {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Recaudado</p>
+              <p className="text-sm font-medium text-gray-600">
+                {isJugador ? 'Total Pagado' : 'Total Recaudado'}
+              </p>
               <p className="text-2xl font-bold text-gray-900">
                 ${calcularTotalRecaudado().toLocaleString()}
               </p>

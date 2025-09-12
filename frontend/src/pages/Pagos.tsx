@@ -14,7 +14,8 @@ interface Multa {
   id: number
   jugador_cedula: string
   causal_descripcion: string
-  causal_valor: number
+  causal_valor: number  // Valor actual de la causal (para referencia)
+  valor: number  // Valor real de la multa al momento de creación
   fecha_multa: string
   pagada: boolean
 }
@@ -27,7 +28,7 @@ interface PagoMensualidad {
 
 interface MultaNueva {
   causal_descripcion: string
-  causal_valor: number
+  valor: number  // Valor de la nueva multa
   fecha_multa: string
 }
 
@@ -223,7 +224,7 @@ function Pagos() {
     
     const nuevaMulta: MultaNueva = {
       causal_descripcion: '',
-      causal_valor: 10000, // Valor por defecto
+      valor: 10000, // Valor por defecto
       fecha_multa: fechaFormateada
     }
     setMultasNuevas([...multasNuevas, nuevaMulta])
@@ -251,8 +252,8 @@ function Pagos() {
     const totalMensualidades = mensualidades.reduce((sum, m) => sum + m.valor, 0)
     const totalMultasExistentes = multasPendientes
       .filter(m => multasSeleccionadas.includes(m.id))
-      .reduce((sum, m) => sum + m.causal_valor, 0)
-    const totalMultasNuevas = multasNuevas.reduce((sum, m) => sum + m.causal_valor, 0)
+      .reduce((sum, m) => sum + m.valor, 0)  // Usar valor real de la multa
+    const totalMultasNuevas = multasNuevas.reduce((sum, m) => sum + m.valor, 0)
     return totalMensualidades + totalMultasExistentes + totalMultasNuevas
   }
 
@@ -298,7 +299,7 @@ function Pagos() {
         // Primero crear la causal
         const causal = await multasService.createCausal({
           descripcion: multa.causal_descripcion,
-          valor: multa.causal_valor
+          valor: multa.valor
         })
         
         // Luego crear la multa con la causal
@@ -556,7 +557,7 @@ function Pagos() {
                         <div className="flex-grow">
                           <div className="font-medium">{multa.causal_descripcion}</div>
                           <div className="text-sm text-gray-600">
-                            ${multa.causal_valor.toLocaleString()} - {new Date(multa.fecha_multa).toLocaleDateString()}
+                            ${multa.valor.toLocaleString()} - {new Date(multa.fecha_multa).toLocaleDateString()}
                           </div>
                         </div>
                       </label>
@@ -601,8 +602,8 @@ function Pagos() {
                     <input
                       type="number"
                       placeholder="Valor"
-                      value={multa.causal_valor}
-                      onChange={(e) => actualizarMulta(index, 'causal_valor', parseInt(e.target.value))}
+                      value={multa.valor}
+                      onChange={(e) => actualizarMulta(index, 'valor', parseInt(e.target.value))}
                       className="p-2 border rounded"
                     />
                     <div className="flex gap-2">
@@ -646,7 +647,7 @@ function Pagos() {
                     <p>Multas pendientes: {multasPendientes.length}</p>
                     {multasPendientes.length > 0 && (
                       <p className="font-bold text-lg text-red-600">
-                        Total adeudado en multas: ${multasPendientes.reduce((sum, m) => sum + m.causal_valor, 0).toLocaleString()}
+                        Total adeudado en multas: ${multasPendientes.reduce((sum, m) => sum + m.valor, 0).toLocaleString()}
                       </p>
                     )}
                     {multasPendientes.length === 0 && (

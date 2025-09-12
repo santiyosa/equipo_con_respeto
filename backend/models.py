@@ -78,6 +78,7 @@ class Multa(Base):
     id = Column(Integer, primary_key=True, index=True)
     jugador_cedula = Column(String, ForeignKey("jugadores.cedula"))
     causal_id = Column(Integer, ForeignKey("causales_multa.id"))
+    valor = Column(Float, nullable=False, comment="Valor de la multa al momento de creación")
     fecha_multa = Column(Date, nullable=False, server_default=func.current_date())
     pagada = Column(Boolean, default=False)
     fecha_pago = Column(DateTime)

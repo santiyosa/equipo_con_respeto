@@ -689,7 +689,6 @@ function Configuracion() {
                   placeholder="Ej: 5000"
                   min="1"
                   max="1000000"
-                  step="1000"
                   required
                   aria-label="Valor de la multa en pesos"
                 />

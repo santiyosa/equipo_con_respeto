@@ -69,6 +69,7 @@ class MultaUpdate(BaseModel):
 
 class Multa(MultaBase):
     id: int
+    valor: float = Field(..., gt=0, description="Valor de la multa al momento de creación")
     fecha_multa: date
     pagada: bool
     fecha_pago: Optional[datetime]
@@ -90,7 +91,8 @@ class MultaCompleta(BaseModel):
     jugador_nombre: str
     causal_id: int
     causal_descripcion: str
-    causal_valor: float
+    causal_valor: float  # Valor actual de la causal (para referencia)
+    valor: float = Field(..., gt=0, description="Valor de la multa al momento de creación")
     fecha_multa: date
     pagada: bool
     fecha_pago: Optional[datetime]

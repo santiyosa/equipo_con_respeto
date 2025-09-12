@@ -95,7 +95,7 @@ function Jugadores() {
         
         // Calcular valor de multas pendientes del jugador
         const valorMultas = multasData.reduce((total: number, multa: any) => 
-          total + (multa.causal_valor || 0), 0
+          total + (multa.valor || 0), 0  // Usar valor real de la multa
         )
         
         // Buscar datos de pagos mensuales del jugador
@@ -123,7 +123,7 @@ function Jugadores() {
             multa.jugador_cedula === jugador.cedula && !multa.pagada
           )
           const valorMultas = multasJugador.reduce((total: number, multa: any) => 
-            total + (multa.causal_valor || 0), 0
+            total + (multa.valor || 0), 0  // Usar valor real de la multa
           )
 
           // Buscar datos de pagos mensuales

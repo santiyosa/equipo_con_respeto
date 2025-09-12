@@ -27,9 +27,7 @@ def obtener_resumen_dashboard(db: Session) -> dashboard_schemas.ResumenDashboard
         # 1. Calcular ingresos totales (mensualidades + otros aportes + multas pagadas)
         total_mensualidades = db.query(func.sum(models.Mensualidad.valor)).scalar() or 0.0
         total_otros_aportes = db.query(func.sum(models.OtroAporte.valor)).scalar() or 0.0
-        total_multas_pagadas = db.query(func.sum(models.CausalMulta.valor))\
-                               .select_from(models.Multa)\
-                               .join(models.CausalMulta)\
+        total_multas_pagadas = db.query(func.sum(models.Multa.valor))\
                                .filter(models.Multa.pagada == True)\
                                .scalar() or 0.0
         
@@ -101,9 +99,7 @@ def obtener_resumen_dashboard(db: Session) -> dashboard_schemas.ResumenDashboard
             multas_pagadas = query_multas.filter(models.Multa.pagada == True).count()
         
         # Obtener valores monetarios
-        query_valores = db.query(func.sum(models.CausalMulta.valor).label('total'))\
-                         .select_from(models.Multa)\
-                         .join(models.CausalMulta)\
+        query_valores = db.query(func.sum(models.Multa.valor).label('total'))\
                          .filter(models.Multa.jugador_cedula == jugador.cedula)
         
         # Aplicar filtros de fecha a valores
@@ -116,9 +112,7 @@ def obtener_resumen_dashboard(db: Session) -> dashboard_schemas.ResumenDashboard
         # Valores pendientes
         valor_pendientes = 0
         if incluir_pendientes:
-            valor_pendientes = db.query(func.sum(models.CausalMulta.valor))\
-                                .select_from(models.Multa)\
-                                .join(models.CausalMulta)\
+            valor_pendientes = db.query(func.sum(models.Multa.valor))\
                                 .filter(models.Multa.jugador_cedula == jugador.cedula)\
                                 .filter(models.Multa.pagada == False)\
                                 .scalar() or 0
@@ -126,9 +120,7 @@ def obtener_resumen_dashboard(db: Session) -> dashboard_schemas.ResumenDashboard
         # Valores pagados
         valor_pagadas = 0
         if incluir_pagadas:
-            valor_pagadas = db.query(func.sum(models.CausalMulta.valor))\
-                             .select_from(models.Multa)\
-                             .join(models.CausalMulta)\
+            valor_pagadas = db.query(func.sum(models.Multa.valor))\
                              .filter(models.Multa.jugador_cedula == jugador.cedula)\
                              .filter(models.Multa.pagada == True)\
                              .scalar() or 0
@@ -204,11 +196,11 @@ def obtener_estadisticas_multas(
     multas_pagadas = query_base.filter(models.Multa.pagada == True).count()
     
     # Valores monetarios
-    valor_total = query_base.with_entities(func.sum(models.CausalMulta.valor)).scalar() or 0
+    valor_total = query_base.with_entities(func.sum(models.Multa.valor)).scalar() or 0
     valor_pendientes = query_base.filter(models.Multa.pagada == False)\
-                                .with_entities(func.sum(models.CausalMulta.valor)).scalar() or 0
+                                .with_entities(func.sum(models.Multa.valor)).scalar() or 0
     valor_pagadas = query_base.filter(models.Multa.pagada == True)\
-                             .with_entities(func.sum(models.CausalMulta.valor)).scalar() or 0
+                             .with_entities(func.sum(models.Multa.valor)).scalar() or 0
     
     # Promedio de multas por jugador
     total_jugadores = db.query(models.Jugador).count()
@@ -225,9 +217,8 @@ def obtener_estadisticas_multas(
     # Jugador con mayor valor en multas
     jugador_mayor_valor = db.query(
         models.Multa.jugador_cedula,
-        func.sum(models.CausalMulta.valor).label('total_valor')
-    ).join(models.CausalMulta)\
-     .group_by(models.Multa.jugador_cedula)\
+        func.sum(models.Multa.valor).label('total_valor')
+    ).group_by(models.Multa.jugador_cedula)\
      .order_by(desc('total_valor'))\
      .first()
     
@@ -276,9 +267,7 @@ def obtener_ranking_jugadores_multas(
         for idx, row in enumerate(ranking_data):
             # Calcular valor de multas pendientes para este jugador
             valor_multas = db.query(
-                func.coalesce(func.sum(models.CausalMulta.valor), 0)
-            ).join(
-                models.Multa, models.CausalMulta.id == models.Multa.causal_id
+                func.coalesce(func.sum(models.Multa.valor), 0)
             ).filter(
                 models.Multa.jugador_cedula == row.cedula,
                 models.Multa.pagada == False
@@ -506,9 +495,7 @@ def obtener_estado_pagos_jugadores_por_mes(db: Session, año: Optional[int] = No
                 }
             
             # Agregar valor de multas pendientes
-            total_multas_pendientes = db.query(func.sum(models.CausalMulta.valor))\
-                                      .select_from(models.Multa)\
-                                      .join(models.CausalMulta)\
+            total_multas_pendientes = db.query(func.sum(models.Multa.valor))\
                                       .filter(
                                           models.Multa.jugador_cedula == jugador.cedula,
                                           models.Multa.pagada == False

@@ -105,7 +105,7 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
           id: `multa-${m.id}`,
           tipo: 'multa' as const,
           titulo: `Multa: ${m.causal_descripcion || m.concepto_aporte || 'Sin causal'}`,
-          subtitulo: `${m.jugador_nombre || 'Sin jugador'} - $${(m.causal_valor || 0).toLocaleString()}`,
+          subtitulo: `${m.jugador_nombre || 'Sin jugador'} - $${(m.valor || 0).toLocaleString()}`,
           icono: '💰',
           datos: m
         })),
