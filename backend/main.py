@@ -12,6 +12,7 @@ from routers.jugador_auth import router as jugador_auth_router
 from routers.estado_cuenta import router as estado_cuenta_router
 from routers.dashboard import router as dashboard_router
 from routers.configuraciones import router as configuraciones_router
+from routers.articulos_normativa import router as articulos_normativa_router
 from dotenv import load_dotenv
 
 # Cargar variables de entorno
@@ -42,6 +43,7 @@ app.include_router(egresos_router, prefix="/api", tags=["egresos"])
 app.include_router(estado_cuenta_router, prefix="/api", tags=["estado-cuenta"])
 app.include_router(dashboard_router, prefix="/api", tags=["dashboard"])
 app.include_router(configuraciones_router, prefix="/api/configuraciones", tags=["configuraciones"])
+app.include_router(articulos_normativa_router, prefix="/api", tags=["normativa"])
 
 @app.get("/")
 def root():

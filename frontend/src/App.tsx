@@ -8,8 +8,9 @@ import Multas from './pages/Multas'
 import Finanzas from './pages/Finanzas'
 import Pagos from './pages/Pagos'
 import Configuracion from './pages/Configuracion'
+import GestionNormativa from './pages/GestionNormativa'
 
-type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion'
+type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion' | 'gestion-normativa'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -27,7 +28,9 @@ function App() {
       case 'pagos':
         return <Pagos />
       case 'configuracion':
-        return <Configuracion />
+        return <Configuracion setCurrentPage={setCurrentPage} />
+      case 'gestion-normativa':
+        return <GestionNormativa />
       default:
         return <Dashboard />
     }

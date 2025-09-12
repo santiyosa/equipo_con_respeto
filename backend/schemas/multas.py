@@ -5,11 +5,17 @@ from pydantic import BaseModel, validator, Field
 class CausalMultaBase(BaseModel):
     descripcion: str = Field(..., min_length=3, max_length=200, description="Descripción de la causal")
     valor: float = Field(..., gt=0, description="Valor de la multa debe ser mayor a 0")
+    articulo_id: Optional[int] = Field(None, description="ID del artículo de normativa que respalda esta causal")
 
 class CausalMultaCreate(CausalMultaBase):
     pass
 
-class CausalMulta(CausalMultaBase):
+class CausalMultaUpdate(BaseModel):
+    descripcion: Optional[str] = Field(None, min_length=3, max_length=200)
+    valor: Optional[float] = Field(None, gt=0)
+    articulo_id: Optional[int] = None
+
+class CausalMultaResponse(CausalMultaBase):
     id: int
 
     class Config:

@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react'
 import { multasService, configuracionesService } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 
+type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion' | 'gestion-normativa'
+
+interface ConfiguracionProps {
+  setCurrentPage?: (page: Page) => void
+}
+
 interface CausalMulta {
   id: number
   descripcion: string
@@ -35,7 +41,7 @@ interface NuevaPosicion {
   paga_mensualidad: boolean
 }
 
-function Configuracion() {
+function Configuracion({ setCurrentPage }: ConfiguracionProps) {
   const { isJugador } = useAuth()
 
   // Los jugadores no tienen acceso a las configuraciones del sistema
@@ -48,19 +54,22 @@ function Configuracion() {
     )
   }
   const [causales, setCausales] = useState<CausalMulta[]>([])
+  const [articulos, setArticulos] = useState<any[]>([]) // Para el contador de artículos
   const [mensualidad, setMensualidad] = useState<number>(0)
   const [posiciones, setPosiciones] = useState<PosicionJuego[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   
-  // Estados para causales de multa
+  // Estados para causales de multa - DESHABILITADOS: Ahora se gestionan desde Gestión de Normativa
+  /*
   const [showFormularioCausal, setShowFormularioCausal] = useState(false)
   const [editandoCausal, setEditandoCausal] = useState<CausalMulta | null>(null)
   const [formDataCausal, setFormDataCausal] = useState<NuevaCausal>({
     descripcion: '',
     valor: 0
   })
+  */
 
   // Estados para mensualidad
   const [editandoMensualidad, setEditandoMensualidad] = useState(false)
@@ -77,7 +86,8 @@ function Configuracion() {
 
   // Estados para secciones colapsables
   const [seccionMensualidad, setSeccionMensualidad] = useState(true)
-  const [seccionCausales, setSeccionCausales] = useState(false)
+  // const [seccionCausales, setSeccionCausales] = useState(false) // DESHABILITADO: Ahora se gestiona desde Gestión de Normativa
+  const [seccionNormativa, setSeccionNormativa] = useState(false)
   const [seccionPosiciones, setSeccionPosiciones] = useState(false)
 
   useEffect(() => {
@@ -100,12 +110,14 @@ function Configuracion() {
       
       // Intentar conectar con la API, usar datos estáticos como fallback
       try {
-        const [causalesData, configuracionesData] = await Promise.all([
+        const [causalesData, configuracionesData, articulosData] = await Promise.all([
           multasService.getCausales(),
-          configuracionesService.getConfiguraciones()
+          configuracionesService.getConfiguraciones(),
+          fetch('/api/articulos-normativa/').then(res => res.ok ? res.json() : [])
         ])
         
         setCausales(causalesData)
+        setArticulos(articulosData || [])
         
         // Buscar la configuración de mensualidad
         const configMensualidad = configuracionesData.find(
@@ -127,6 +139,7 @@ function Configuracion() {
         ]
         
         setCausales(causalesEstaticas)
+        setArticulos([]) // En modo offline, no hay artículos
         setMensualidad(50000)
         setNuevoValorMensualidad(50000)
       }
@@ -138,6 +151,8 @@ function Configuracion() {
     }
   }
 
+  // FUNCIÓN PARA GUARDAR CAUSALES - DESHABILITADA: Ahora se gestiona desde Gestión de Normativa
+  /*
   const handleSubmitCausal = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -211,7 +226,10 @@ function Configuracion() {
       setError(errorMessage)
     }
   }
+  */
 
+  // FUNCIONES PARA CAUSALES - DESHABILITADAS: Ahora se gestionan desde Gestión de Normativa
+  /*
   const editarCausal = (causal: CausalMulta) => {
     setEditandoCausal(causal)
     setFormDataCausal({
@@ -236,7 +254,9 @@ function Configuracion() {
       setError(errorMessage)
     }
   }
+  */
 
+  /*
   const cerrarFormularioCausal = () => {
     setShowFormularioCausal(false)
     setEditandoCausal(null)
@@ -245,6 +265,7 @@ function Configuracion() {
       valor: 0
     })
   }
+  */
 
   const actualizarMensualidad = async () => {
     // Limpiar errores previos
@@ -503,7 +524,8 @@ function Configuracion() {
           )}
         </div>
 
-        {/* Sección de Causales de Multa */}
+        {/* Sección de Causales de Multa - DESHABILITADA: Ahora se gestiona desde Gestión de Normativa */}
+        {/*
         <div className="bg-white rounded-lg shadow">
           <div 
             className="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50"
@@ -567,6 +589,74 @@ function Configuracion() {
                     No hay causales de multa configuradas
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+        </div>
+        */}
+
+        {/* Sección de Gestión de Normativa */}
+        <div className="bg-white rounded-lg shadow">
+          <div 
+            className="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50"
+            onClick={() => setSeccionNormativa(!seccionNormativa)}
+          >
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              📋 Gestión de Normativa
+            </h2>
+            <svg 
+              className={`w-5 h-5 transform transition-transform ${seccionNormativa ? 'rotate-180' : ''}`}
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          
+          {seccionNormativa && (
+            <div className="px-6 pb-6">
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-2">Sistema de Normativa</h3>
+                <p className="text-blue-700 text-sm">
+                  Gestiona los artículos de la normativa del equipo y vincula las causales de multa 
+                  con los artículos correspondientes. Puedes crear artículos informativos y sancionables, 
+                  y generar el documento completo de la normativa.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => {
+                    if (setCurrentPage) {
+                      setCurrentPage('gestion-normativa')
+                    }
+                  }}
+                  className="flex-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                >
+                  Abrir Gestión de Normativa
+                </button>
+                <div className="flex-1 grid grid-cols-2 gap-2 text-sm text-gray-600">
+                  <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="font-medium">Artículos</div>
+                    <div className="text-lg font-bold text-blue-600">{articulos.length}</div>
+                  </div>
+                  <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="font-medium">Causales</div>
+                    <div className="text-lg font-bold text-green-600">{causales.length}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 text-sm text-gray-600">
+                <p><strong>Características:</strong></p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>Crear artículos informativos y sancionables</li>
+                  <li>Vincular causales de multa con artículos específicos</li>
+                  <li>Generar documento completo de normativa</li>
+                  <li>Exportar a PDF para distribución</li>
+                  <li>Historial de vigencia de artículos</li>
+                </ul>
               </div>
             </div>
           )}
@@ -649,7 +739,8 @@ function Configuracion() {
         </div>
       </div>
 
-      {/* Modal para crear/editar causal */}
+      {/* Modal para crear/editar causal - DESHABILITADO: Ahora se gestiona desde Gestión de Normativa */}
+      {/*
       {showFormularioCausal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -713,6 +804,7 @@ function Configuracion() {
           </div>
         </div>
       )}
+      */}
 
       {/* Modal para crear/editar posición */}
       {showFormularioPosicion && (

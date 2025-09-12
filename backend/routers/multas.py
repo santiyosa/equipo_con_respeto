@@ -104,12 +104,12 @@ def listar_multas_jugador(
     """Lista todas las multas de un jugador por cédula"""
     return crud.get_multas_jugador(db, cedula, incluir_pagadas)
 
-@router.get("/multas/causales/", response_model=List[schemas.CausalMulta])
+@router.get("/multas/causales/", response_model=List[schemas.CausalMultaResponse])
 def listar_causales_multa(db: Session = Depends(get_db)):
     """Lista todas las causales de multa disponibles"""
     return crud.get_causales_multa(db)
 
-@router.post("/multas/causales/", response_model=schemas.CausalMulta)
+@router.post("/multas/causales/", response_model=schemas.CausalMultaResponse)
 def crear_causal_multa(
     causal: schemas.CausalMultaCreate,
     db: Session = Depends(get_db)
@@ -117,10 +117,10 @@ def crear_causal_multa(
     """Crea una nueva causal de multa"""
     return crud.crear_causal_multa(db, causal)
 
-@router.put("/multas/causales/{causal_id}", response_model=schemas.CausalMulta)
+@router.put("/multas/causales/{causal_id}", response_model=schemas.CausalMultaResponse)
 def actualizar_causal_multa(
     causal_id: int,
-    causal: schemas.CausalMultaCreate,
+    causal: schemas.CausalMultaUpdate,
     db: Session = Depends(get_db)
 ):
     """Actualiza una causal de multa existente"""

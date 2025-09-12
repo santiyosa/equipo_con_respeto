@@ -69,8 +69,26 @@ class CausalMulta(Base):
     id = Column(Integer, primary_key=True, index=True)
     descripcion = Column(Text, nullable=False)
     valor = Column(Float, nullable=False)
+    articulo_id = Column(Integer, ForeignKey("articulos_normativa.id"), nullable=True, comment="Referencia al artículo de normativa que respalda esta causal")
 
     multas = relationship("Multa", back_populates="causal")
+    articulo = relationship("ArticuloNormativa", back_populates="causales")
+
+class ArticuloNormativa(Base):
+    __tablename__ = "articulos_normativa"
+
+    id = Column(Integer, primary_key=True, index=True)
+    numero_articulo = Column(String(20), nullable=False, unique=True, comment="Número del artículo, ej: '5.2', '12.1'")
+    titulo = Column(String(200), nullable=False, comment="Título descriptivo del artículo")
+    contenido = Column(Text, nullable=False, comment="Texto completo del artículo")
+    tipo = Column(String(20), nullable=False, default='informativo', comment="Tipo: 'informativo' o 'sancionable'")
+    vigencia_desde = Column(DateTime, nullable=False, server_default=func.current_timestamp(), comment="Fecha de creación/vigencia")
+    orden_display = Column(Integer, nullable=False, default=0, comment="Orden para mostrar en la normativa")
+    activo = Column(Boolean, nullable=False, default=True, comment="Indica si el artículo está activo")
+    created_at = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+    updated_at = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+
+    causales = relationship("CausalMulta", back_populates="articulo")
 
 class Multa(Base):
     __tablename__ = "multas"

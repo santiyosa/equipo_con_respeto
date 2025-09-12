@@ -4,7 +4,7 @@ import ModalBusquedaGlobal from './ModalBusquedaGlobal'
 import NotificacionAtajo from './NotificacionAtajo'
 import PermissionGuard from './PermissionGuard'
 
-type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion'
+type Page = 'dashboard' | 'jugadores' | 'multas' | 'finanzas' | 'pagos' | 'configuracion' | 'gestion-normativa'
 
 interface LayoutProps {
   children: React.ReactNode

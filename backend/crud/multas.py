@@ -355,23 +355,25 @@ def crear_causal_multa(db: Session, causal: schemas.CausalMultaCreate):
     db.refresh(db_causal)
     return db_causal
 
-def actualizar_causal_multa(db: Session, causal_id: int, causal: schemas.CausalMultaCreate):
+def actualizar_causal_multa(db: Session, causal_id: int, causal: schemas.CausalMultaUpdate):
     """Actualiza una causal de multa existente"""
     db_causal = db.query(models.CausalMulta).filter(models.CausalMulta.id == causal_id).first()
     if not db_causal:
         raise ValueError("Causal de multa no encontrada")
     
-    # Verificar si ya existe otra causal con la misma descripción
-    causal_existente = db.query(models.CausalMulta).filter(
-        models.CausalMulta.descripcion == causal.descripcion,
-        models.CausalMulta.id != causal_id
-    ).first()
+    # Verificar si ya existe otra causal con la misma descripción (si se está actualizando)
+    if causal.descripcion and causal.descripcion != db_causal.descripcion:
+        causal_existente = db.query(models.CausalMulta).filter(
+            models.CausalMulta.descripcion == causal.descripcion,
+            models.CausalMulta.id != causal_id
+        ).first()
+        
+        if causal_existente:
+            raise ValueError(f"Ya existe una causal con la descripción '{causal.descripcion}'")
     
-    if causal_existente:
-        raise ValueError(f"Ya existe una causal con la descripción '{causal.descripcion}'")
-    
-    # Actualizar los campos
-    for field, value in causal.dict().items():
+    # Actualizar solo los campos proporcionados
+    update_data = causal.dict(exclude_unset=True)
+    for field, value in update_data.items():
         setattr(db_causal, field, value)
     
     db.commit()
