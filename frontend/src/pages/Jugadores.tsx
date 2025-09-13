@@ -339,7 +339,7 @@ function Jugadores() {
         <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-6">
           <p className="text-sm">
             <strong>Información:</strong> Aquí puedes ver tu información personal registrada en el sistema. 
-            Si necesitas actualizar algún dato, contacta con el administrador.
+            Si necesitas actualizar algún dato, contacta con algun miembro de la junta.
           </p>
         </div>
       )}

@@ -675,7 +675,13 @@ function Pagos() {
                     📋 <strong>Vista de consulta:</strong> Puedes ver tu estado de pagos y multas, pero no registrar nuevos pagos.
                   </p>
                   <p className="text-xs mt-1 text-blue-600">
-                    Para realizar pagos, contacta con el administrador del equipo.
+                    Recuerda que los pagos se realiza al nequi - <strong>3023241580</strong>  y se debe enviar el comprobante al grupo de whatsApp <strong> JUGADORES CON CLASE (SOLO PAGOS - MULTAS) </strong>
+                    <ul> Con la siguiente información
+                      <li>Valor del pago</li>
+                      <li>Persona que consigna</li>
+                      <li>Que esta pagando</li>
+                      <li>Comprobante de la transferencia</li>
+                    </ul> .
                   </p>
                 </div>
               )}

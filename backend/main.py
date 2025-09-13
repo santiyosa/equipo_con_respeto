@@ -2,6 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 import models
+import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
+
 from routers.pagos import router as pagos_router
 from routers.jugadores import router as jugadores_router
 from routers.multas import router as multas_router

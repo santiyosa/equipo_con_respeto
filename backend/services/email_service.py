@@ -52,7 +52,7 @@ class EmailService:
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🏈 Sistema de Gestión del Equipo</h1>
+                        <h1>Sistema de Gestión Club de Futbol Mi Equipo</h1>
                     </div>
                     
                     <div class="content">
@@ -72,7 +72,7 @@ class EmailService:
                             <p>⚠️ Si no solicitaste este cambio, ignora este email.</p>
                         </div>
                         
-                        <p>Saludos,<br>El equipo de administración</p>
+                        <p>Saludos,<br>Junta Administrativa</p>
                     </div>
                     
                     <div class="footer">
