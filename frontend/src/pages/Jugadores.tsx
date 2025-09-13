@@ -20,6 +20,10 @@ interface Jugador {
   activo: boolean
   fecha_inscripcion: string
   created_at: string
+  // Campos médicos
+  eps?: string
+  lugar_atencion?: string
+  rh?: string
 }
 
 interface JugadorConEstadoCompleto extends Jugador {
@@ -49,6 +53,10 @@ interface JugadorFormData {
   contacto_emergencia_nombre: string  // Separado en nombre y teléfono
   contacto_emergencia_telefono: string
   nombre_inscripcion: string
+  // Campos médicos
+  eps?: string
+  lugar_atencion?: string
+  rh?: string
 }
 
 function Jugadores() {
@@ -73,7 +81,11 @@ function Jugadores() {
     talla_uniforme: '',
     contacto_emergencia_nombre: '',
     contacto_emergencia_telefono: '',
-    nombre_inscripcion: ''
+    nombre_inscripcion: '',
+    // Campos médicos
+    eps: '',
+    lugar_atencion: '',
+    rh: ''
   })
 
   useEffect(() => {
@@ -193,7 +205,11 @@ function Jugadores() {
         talla_uniforme: jugador.talla_uniforme || '',
         contacto_emergencia_nombre: jugador.contacto_emergencia_nombre || '',
         contacto_emergencia_telefono: jugador.contacto_emergencia_telefono || '',
-        nombre_inscripcion: jugador.nombre_inscripcion || ''
+        nombre_inscripcion: jugador.nombre_inscripcion || '',
+        // Campos médicos
+        eps: jugador.eps || '',
+        lugar_atencion: jugador.lugar_atencion || '',
+        rh: jugador.rh || ''
       })
     } else if (mode === 'create') {
       // Resetear formulario para nuevo jugador
@@ -208,7 +224,11 @@ function Jugadores() {
         talla_uniforme: '',
         contacto_emergencia_nombre: '',
         contacto_emergencia_telefono: '',
-        nombre_inscripcion: ''
+        nombre_inscripcion: '',
+        // Campos médicos
+        eps: '',
+        lugar_atencion: '',
+        rh: ''
       })
     }
   }
@@ -728,7 +748,7 @@ function Jugadores() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Contacto de Emergencia - Nombre *
+                        Nombre Contacto de Emergencia*
                       </label>
                       <input
                         type="text"
@@ -742,7 +762,7 @@ function Jugadores() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Contacto de Emergencia - Teléfono *
+                        Teléfono Contacto de Emergencia*
                       </label>
                       <input
                         type="tel"
@@ -754,6 +774,64 @@ function Jugadores() {
                       />
                     </div>
 
+                  </div>
+
+                  {/* Información Médica */}
+                  <div className="col-span-2">
+                    <h4 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Información Médica</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      
+                      {/* EPS */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          EPS <span className="text-gray-400">(Opcional)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.eps || ''}
+                          onChange={(e) => setFormData({ ...formData, eps: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Entidad Promotora de Salud"
+                        />
+                      </div>
+
+                      {/* Lugar de Atención */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Lugar de Atención <span className="text-gray-400">(Opcional)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.lugar_atencion || ''}
+                          onChange={(e) => setFormData({ ...formData, lugar_atencion: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Hospital, clínica, centro médico"
+                        />
+                      </div>
+
+                      {/* RH (Tipo de Sangre) */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          RH <span className="text-gray-400">(Opcional)</span>
+                        </label>
+                        <select
+                          value={formData.rh || ''}
+                          onChange={(e) => setFormData({ ...formData, rh: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Seleccionar tipo de sangre</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                        </select>
+                      </div>
+
+                    </div>
                   </div>
 
                   <div className="flex justify-end space-x-3 pt-4">

@@ -44,6 +44,12 @@ class Jugador(Base):
     # Campos de autenticación
     email = Column(String, nullable=True, comment="Email para autenticación (opcional)")
     password = Column(String, nullable=True, comment="Contraseña hasheada para autenticación")
+    
+    # Campos de información médica
+    eps = Column(String, nullable=True, comment="Entidad Promotora de Salud")
+    lugar_atencion = Column(String, nullable=True, comment="Lugar donde recibe atención médica")
+    rh = Column(String, nullable=True, comment="Tipo de sangre (RH)")
+    
     created_at = Column(DateTime, nullable=False, server_default=func.current_timestamp())
 
     mensualidades = relationship("Mensualidad", back_populates="jugador")

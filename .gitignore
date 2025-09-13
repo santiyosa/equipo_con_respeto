@@ -1,3 +1,17 @@
+# ARCHIVOS DE SEGURIDAD Y CONFIGURACIÓN - ¡NUNCA SUBIR!
+# ================================================================
+.env
+*.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# Variables de entorno con credenciales
+**/.env
+**/.env.local
+**/.env.production
+
 # Archivos generados automáticamente
 *.bat
 *.tmp

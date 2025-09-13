@@ -17,6 +17,10 @@ class JugadorBase(BaseModel):
     recomendado_por_cedula: Optional[str] = None
     posicion: Optional[str] = None  # None para jugadores de campo, "arquero" para porteros
     activo: bool = True
+    # Campos de información médica
+    eps: Optional[str] = None
+    lugar_atencion: Optional[str] = None
+    rh: Optional[str] = None
 
 class JugadorCreate(JugadorBase):
     nombre_inscripcion: str  # Requerido en la creación
@@ -32,6 +36,10 @@ class JugadorUpdate(BaseModel):
     recomendado_por_cedula: Optional[str] = None
     posicion: Optional[str] = None
     activo: Optional[bool] = None
+    # Campos de información médica
+    eps: Optional[str] = None
+    lugar_atencion: Optional[str] = None
+    rh: Optional[str] = None
 
 class Jugador(JugadorBase):
     nombre_inscripcion: str
