@@ -19,10 +19,6 @@ from routers.estado_cuenta import router as estado_cuenta_router
 from routers.dashboard import router as dashboard_router
 from routers.configuraciones import router as configuraciones_router
 from routers.articulos_normativa import router as articulos_normativa_router
-from dotenv import load_dotenv
-
-# Cargar variables de entorno
-load_dotenv()
 
 # Crear todas las tablas en la base de datos
 models.Base.metadata.create_all(bind=engine)
