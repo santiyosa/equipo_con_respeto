@@ -30,9 +30,30 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="API Equipo de Fútbol")
 
 # Configurar CORS
+# Desarrollo: localhost
+# Producción: dominios de Render
+CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174", 
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174"
+]
+
+# Agregar orígenes de producción si están configurados
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+if FRONTEND_URL:
+    CORS_ORIGINS.extend([
+        FRONTEND_URL,
+        FRONTEND_URL.replace("http://", "https://")  # Soportar HTTP y HTTPS
+    ])
+
+# En producción, permitir todos los orígenes de Render
+if os.getenv("RENDER"):
+    CORS_ORIGINS.append("*")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

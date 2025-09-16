@@ -73,7 +73,6 @@ function Pagos() {
         setValorMensualidad(configMensualidad.valor)
       }
     } catch (error) {
-      console.error('Error al cargar valor de mensualidad:', error)
       // Mantener valor por defecto si hay error
     }
   }

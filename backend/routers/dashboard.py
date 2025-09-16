@@ -204,3 +204,43 @@ async def generar_reporte_ejecutivo_pdf(
             status_code=500,
             detail=f"Error al generar el reporte PDF: {str(e)}"
         )
+
+@router.get("/ultimos-egresos")
+async def obtener_ultimos_egresos(
+    limite: int = 5,
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene los últimos egresos registrados en el sistema.
+    
+    - **limite**: Número de egresos a retornar (máximo 10, default 5)
+    
+    Retorna información detallada de los egresos más recientes
+    incluyendo descripción, valor, fecha y categoría.
+    """
+    
+    # Validar parámetros
+    if limite > 10:
+        raise HTTPException(
+            status_code=400,
+            detail="El límite máximo permitido es 10 egresos"
+        )
+    
+    if limite < 1:
+        raise HTTPException(
+            status_code=400,
+            detail="El límite debe ser al menos 1"
+        )
+    
+    try:
+        egresos = dashboard_crud.obtener_ultimos_egresos(db=db, limite=limite)
+        return {
+            "egresos": egresos,
+            "total": len(egresos),
+            "limite_solicitado": limite
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener últimos egresos: {str(e)}"
+        )

@@ -122,7 +122,7 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
       setResultados(todosResultados)
       setSelectedIndex(-1)
     } catch (error) {
-      console.error('Error en búsqueda:', error)
+      // Error en búsqueda manejado silenciosamente
     } finally {
       setCargando(false)
     }
@@ -141,7 +141,6 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
       
       return filtrados
     } catch (error) {
-      console.error('Error buscando jugadores:', error)
       return []
     }
   }
@@ -156,7 +155,6 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
         m.concepto_aporte?.toLowerCase().includes(termino.toLowerCase())
       )
     } catch (error) {
-      console.error('Error buscando multas:', error)
       return []
     }
   }
@@ -169,7 +167,6 @@ function ModalBusquedaGlobal({ isOpen, onClose, onResultadoSeleccionado }: Modal
         e.categoria?.nombre?.toLowerCase().includes(termino.toLowerCase())
       )
     } catch (error) {
-      console.error('Error buscando egresos:', error)
       return []
     }
   }

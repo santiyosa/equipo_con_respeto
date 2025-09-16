@@ -509,3 +509,46 @@ def obtener_estado_pagos_jugadores_por_mes(db: Session, año: Optional[int] = No
         
     except Exception as e:
         raise Exception(f"Error al obtener estado de pagos por mes: {str(e)}")
+
+def obtener_ultimos_egresos(db: Session, limite: int = 5) -> List[dict]:
+    """
+    Obtiene los últimos egresos registrados en el sistema
+    
+    Args:
+        db: Sesión de base de datos
+        limite: Número máximo de egresos a retornar (default: 5)
+    
+    Returns:
+        Lista de diccionarios con información de los últimos egresos
+    """
+    try:
+        # Obtener los últimos egresos con información de categoría
+        egresos = db.query(
+            models.Egreso.id,
+            models.Egreso.concepto,
+            models.Egreso.valor,
+            models.Egreso.fecha,
+            models.CategoriaEgreso.nombre.label('categoria_nombre')
+        ).join(
+            models.CategoriaEgreso, 
+            models.Egreso.categoria_id == models.CategoriaEgreso.id
+        ).order_by(
+            desc(models.Egreso.fecha), 
+            desc(models.Egreso.id)
+        ).limit(limite).all()
+        
+        resultado = []
+        for egreso in egresos:
+            egreso_info = {
+                "id": egreso.id,
+                "descripcion": egreso.concepto,
+                "valor": float(egreso.valor),
+                "fecha": egreso.fecha.isoformat() if egreso.fecha else None,
+                "categoria": egreso.categoria_nombre if egreso.categoria_nombre else "Sin categoría"
+            }
+            resultado.append(egreso_info)
+        
+        return resultado
+        
+    except Exception as e:
+        raise Exception(f"Error al obtener últimos egresos: {str(e)}")

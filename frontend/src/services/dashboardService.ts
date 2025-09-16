@@ -25,6 +25,20 @@ export interface JugadorConPagosMensuales {
   valor_multas_pendientes: number;
 }
 
+export interface UltimoEgreso {
+  id: number;
+  descripcion: string;
+  valor: number;
+  fecha: string | null;
+  categoria: string;
+}
+
+export interface UltimosEgresosResponse {
+  egresos: UltimoEgreso[];
+  total: number;
+  limite_solicitado: number;
+}
+
 export const dashboardService = {
   /**
    * Obtiene estadísticas simplificadas de jugadores
@@ -51,5 +65,13 @@ export const dashboardService = {
       responseType: 'blob'
     });
     return response.data;
+  },
+
+  /**
+   * Obtiene los últimos egresos registrados
+   */
+  async obtenerUltimosEgresos(limite: number = 5): Promise<UltimoEgreso[]> {
+    const response = await api.get(`/api/dashboard/ultimos-egresos?limite=${limite}`);
+    return response.data.egresos; // Extraer solo el array de egresos
   }
 };

@@ -39,7 +39,6 @@ export const authService = {
       }
       return null
     } catch (error) {
-      console.error('Error getting current user:', error)
       return null
     }
   },

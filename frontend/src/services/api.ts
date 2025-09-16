@@ -64,6 +64,11 @@ export const dashboardService = {
       responseType: 'blob'
     })
     return response.data
+  },
+
+  async getUltimosEgresos(limite: number = 5) {
+    const response = await api.get(`/api/dashboard/ultimos-egresos?limite=${limite}`)
+    return response.data
   }
 }
 

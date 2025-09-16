@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { dashboardService } from '../services/api'
 import EstadisticasJugadores from '../components/dashboard/EstadisticasJugadores'
+import UltimosEgresos from '../components/dashboard/UltimosEgresos'
 
 // Tipos actualizados para coincidir con el backend
 interface DashboardData {
@@ -90,7 +91,7 @@ function Dashboard() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (error) {
-      console.error('Error downloading report:', error)
+      // Error descargando reporte - manejado silenciosamente
     }
   }
 
@@ -186,6 +187,9 @@ function Dashboard() {
 
       {/* Estadísticas de Jugadores */}
       <EstadisticasJugadores />
+
+      {/* Últimos Egresos */}
+      <UltimosEgresos />
 
       {/* Estadísticas de Multas */}
       {estadisticasMultas && (

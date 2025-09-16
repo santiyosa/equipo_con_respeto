@@ -49,7 +49,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = JSON.parse(savedUser)
           setUser(userData)
         } catch (error) {
-          console.error('Error parsing saved user data:', error)
           localStorage.removeItem('user')
         }
       }
