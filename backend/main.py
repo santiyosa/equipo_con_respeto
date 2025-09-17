@@ -20,8 +20,12 @@ from routers.dashboard import router as dashboard_router
 from routers.configuraciones import router as configuraciones_router
 from routers.articulos_normativa import router as articulos_normativa_router
 
-# Crear todas las tablas en la base de datos
-models.Base.metadata.create_all(bind=engine)
+# Crear todas las tablas en la base de datos (solo si no existen)
+# Las tablas ya existen en PostgreSQL, comentado para evitar conflictos
+# try:
+#     models.Base.metadata.create_all(bind=engine)
+# except Exception as e:
+#     print(f"Warning: Table creation skipped: {e}")
 
 app = FastAPI(title="API Equipo de Fútbol")
 
