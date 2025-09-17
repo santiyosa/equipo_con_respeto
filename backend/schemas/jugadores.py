@@ -6,6 +6,7 @@ from .pagos import MesPago, OtroAporteResumen
 
 class JugadorBase(BaseModel):
     nombre: str
+    apellido: str
     cedula: str
     telefono: str
     email: str  # Email para credenciales
@@ -27,6 +28,7 @@ class JugadorCreate(JugadorBase):
 
 class JugadorUpdate(BaseModel):
     nombre: Optional[str] = None
+    apellido: Optional[str] = None
     telefono: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
     talla_uniforme: Optional[str] = None
