@@ -17,7 +17,7 @@ class JugadorBase(BaseModel):
     contacto_emergencia_telefono: str
     recomendado_por_cedula: Optional[str] = None
     posicion: Optional[str] = None  # None para jugadores de campo, "arquero" para porteros
-    activo: bool = True
+    activo: Optional[bool] = True
     # Campos de información médica
     eps: Optional[str] = None
     lugar_atencion: Optional[str] = None
@@ -46,7 +46,7 @@ class JugadorUpdate(BaseModel):
 class Jugador(JugadorBase):
     nombre_inscripcion: str
     fecha_inscripcion: date
-    estado_cuenta: bool
+    estado_cuenta: Optional[bool] = None
     created_at: datetime
 
     class Config:
