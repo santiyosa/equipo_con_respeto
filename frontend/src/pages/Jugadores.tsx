@@ -651,6 +651,10 @@ function Jugadores() {
                     <p className="mt-1 text-sm text-gray-900">{selectedJugador.nombre}</p>
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700">Apellido</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.apellido || 'No disponible'}</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700">Alias/Inscripción</label>
                     <p className="mt-1 text-sm text-gray-900">{selectedJugador.nombre_inscripcion}</p>
                   </div>
@@ -671,6 +675,10 @@ function Jugadores() {
                     <p className="mt-1 text-sm text-gray-900">{selectedJugador.fecha_nacimiento ? new Date(selectedJugador.fecha_nacimiento).toLocaleDateString() : 'No disponible'}</p>
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700">Recomendado por (Cédula)</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.recomendado_por_cedula || 'No especificado'}</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700">Posición</label>
                     <p className="mt-1 text-sm text-gray-900">{selectedJugador.posicion || 'No especificada'}</p>
                   </div>
@@ -689,6 +697,18 @@ function Jugadores() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Estado</label>
                     <p className="mt-1 text-sm text-gray-900">{selectedJugador.activo ? 'ACTIVO' : 'INACTIVO'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">EPS</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.eps || 'No especificada'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Lugar de Atención</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.lugar_atencion || 'No especificado'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Tipo de Sangre (RH)</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.rh || 'No especificado'}</p>
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Contacto de Emergencia</label>
