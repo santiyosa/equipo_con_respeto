@@ -28,7 +28,6 @@ class Jugador(Base):
 
     cedula = Column(String, primary_key=True, index=True, comment="Cédula de ciudadanía como identificador único")
     nombre = Column(String, nullable=False)
-    apellido = Column(String, nullable=False)
     nombre_inscripcion = Column(String, unique=True, nullable=False, comment="Nombre o alias que usa el jugador para inscribirse")
     telefono = Column(String, unique=True, nullable=False)
     fecha_nacimiento = Column(Date, nullable=False)
