@@ -19,7 +19,7 @@ def login_unificado(credentials: LoginRequest, db: Session = Depends(get_db)):
             "id": admin.id,
             "nombre": str(admin.nombre),
             "email": str(admin.email),
-            "rol": "admin",
+            "rol": str(admin.rol),  # Usar el rol real de la base de datos
             "tipo_usuario": "administrador"
         }
     

@@ -7,6 +7,7 @@ import { dashboardService, JugadorConPagosMensuales } from '../services/dashboar
 interface Jugador {
   cedula: string
   nombre: string
+  apellido: string // ✅ Agregado campo apellido que existe en el backend
   nombre_inscripcion: string
   telefono: string
   email?: string
@@ -16,6 +17,7 @@ interface Jugador {
   talla_uniforme: string
   contacto_emergencia_nombre: string
   contacto_emergencia_telefono: string
+  recomendado_por_cedula?: string // Campo para la cédula del recomendador
   estado_cuenta: boolean
   activo: boolean
   fecha_inscripcion: string
@@ -42,7 +44,7 @@ type ModalMode = 'view' | 'edit' | 'create';
 interface JugadorFormData {
   cedula?: string
   nombre: string
-  apellido?: string  // Este campo no existe en el backend
+  apellido: string // ✅ Campo apellido sí existe en el backend
   telefono: string
   email?: string
   fecha_nacimiento: string
@@ -53,6 +55,7 @@ interface JugadorFormData {
   contacto_emergencia_nombre: string  // Separado en nombre y teléfono
   contacto_emergencia_telefono: string
   nombre_inscripcion: string
+  recomendado_por_cedula?: string  // Campo para la cédula del jugador que recomienda
   // Campos médicos
   eps?: string
   lugar_atencion?: string
@@ -67,12 +70,17 @@ function Jugadores() {
   const [añoActual] = useState(new Date().getFullYear())
   const [filtro, setFiltro] = useState('')
   
+  // Estados para ordenamiento
+  const [ordenarPor, setOrdenarPor] = useState<string>('nombre')
+  const [direccionOrden, setDireccionOrden] = useState<'asc' | 'desc'>('asc')
+  
   // Estados para el modal de edición
   const [modalMode, setModalMode] = useState<ModalMode | null>(null)
   const [selectedJugador, setSelectedJugador] = useState<Jugador | null>(null)
   const [formData, setFormData] = useState<JugadorFormData>({
     cedula: '',
     nombre: '',
+    apellido: '', // ✅ Agregado el campo apellido
     telefono: '',
     email: '',
     fecha_nacimiento: '',
@@ -82,6 +90,7 @@ function Jugadores() {
     contacto_emergencia_nombre: '',
     contacto_emergencia_telefono: '',
     nombre_inscripcion: '',
+    recomendado_por_cedula: '', // Campo para la cédula del recomendador
     // Campos médicos
     eps: '',
     lugar_atencion: '',
@@ -197,6 +206,7 @@ function Jugadores() {
       setFormData({
         cedula: jugador.cedula || '',
         nombre: jugador.nombre || '',
+        apellido: jugador.apellido || '', // ✅ Agregado campo apellido
         telefono: jugador.telefono || '',
         email: jugador.email || '',
         fecha_nacimiento: jugador.fecha_nacimiento || '',
@@ -206,6 +216,7 @@ function Jugadores() {
         contacto_emergencia_nombre: jugador.contacto_emergencia_nombre || '',
         contacto_emergencia_telefono: jugador.contacto_emergencia_telefono || '',
         nombre_inscripcion: jugador.nombre_inscripcion || '',
+        recomendado_por_cedula: jugador.recomendado_por_cedula || '',
         // Campos médicos
         eps: jugador.eps || '',
         lugar_atencion: jugador.lugar_atencion || '',
@@ -216,6 +227,7 @@ function Jugadores() {
       setFormData({
         cedula: '',
         nombre: '',
+        apellido: '', // ✅ Agregado campo apellido
         telefono: '',
         email: '',
         fecha_nacimiento: '',
@@ -225,6 +237,7 @@ function Jugadores() {
         contacto_emergencia_nombre: '',
         contacto_emergencia_telefono: '',
         nombre_inscripcion: '',
+        recomendado_por_cedula: '',
         // Campos médicos
         eps: '',
         lugar_atencion: '',
@@ -238,17 +251,92 @@ function Jugadores() {
     setSelectedJugador(null)
   }
 
-  // Función para filtrar jugadores
-  const jugadoresFiltrados = jugadores.filter(jugador => {
-    if (!filtro) return true
-    
-    const filtroLower = filtro.toLowerCase()
-    return (
-      (jugador.nombre && jugador.nombre.toLowerCase().includes(filtroLower)) ||
-      (jugador.cedula && jugador.cedula.toLowerCase().includes(filtroLower)) ||
-      (jugador.nombre_inscripcion && jugador.nombre_inscripcion.toLowerCase().includes(filtroLower))
-    )
-  })
+  // Función para manejar el ordenamiento
+  const manejarOrdenamiento = (campo: string) => {
+    if (ordenarPor === campo) {
+      // Si ya está ordenado por este campo, cambiar dirección
+      setDireccionOrden(direccionOrden === 'asc' ? 'desc' : 'asc')
+    } else {
+      // Si es un campo diferente, ordenar ascendente
+      setOrdenarPor(campo)
+      setDireccionOrden('asc')
+    }
+  }
+
+  // Función para filtrar y ordenar jugadores
+  const jugadoresFiltraysOrdenados = jugadores
+    .filter(jugador => {
+      if (!filtro) return true
+      
+      const filtroLower = filtro.toLowerCase()
+      return (
+        (jugador.nombre && jugador.nombre.toLowerCase().includes(filtroLower)) ||
+        (jugador.apellido && jugador.apellido.toLowerCase().includes(filtroLower)) ||
+        (jugador.cedula && jugador.cedula.toLowerCase().includes(filtroLower)) ||
+        (jugador.nombre_inscripcion && jugador.nombre_inscripcion.toLowerCase().includes(filtroLower))
+      )
+    })
+    .sort((a, b) => {
+      let valorA: any = ''
+      let valorB: any = ''
+      
+      switch (ordenarPor) {
+        case 'nombre':
+          valorA = a.nombre || ''
+          valorB = b.nombre || ''
+          break
+        case 'apellido':
+          valorA = a.apellido || ''
+          valorB = b.apellido || ''
+          break
+        case 'cedula':
+          valorA = a.cedula || ''
+          valorB = b.cedula || ''
+          break
+        case 'estado':
+          // Ordenar por estado de cuenta (al día primero)
+          valorA = a.estado_cuenta ? 0 : 1
+          valorB = b.estado_cuenta ? 0 : 1
+          break
+        case 'multas':
+          valorA = a.valor_multas_pendientes || 0
+          valorB = b.valor_multas_pendientes || 0
+          break
+        case 'numero_camiseta':
+          valorA = a.numero_camiseta || 0
+          valorB = b.numero_camiseta || 0
+          break
+        default:
+          valorA = a.nombre || ''
+          valorB = b.nombre || ''
+      }
+      
+      // Comparar valores
+      if (typeof valorA === 'string' && typeof valorB === 'string') {
+        const resultado = valorA.localeCompare(valorB)
+        return direccionOrden === 'asc' ? resultado : -resultado
+      } else {
+        const resultado = (valorA as number) - (valorB as number)
+        return direccionOrden === 'asc' ? resultado : -resultado
+      }
+    })
+
+  // Componente para header ordenable
+  const HeaderOrdenable = ({ campo, children }: { campo: string; children: React.ReactNode }) => (
+    <th
+      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+      onClick={() => manejarOrdenamiento(campo)}
+    >
+      <div className="flex items-center space-x-1">
+        <span>{children}</span>
+        {ordenarPor === campo && (
+          <span className="text-gray-400">
+            {direccionOrden === 'asc' ? '↑' : '↓'}
+          </span>
+        )}
+      </div>
+    </th>
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -331,7 +419,7 @@ function Jugadores() {
 
       {/* Barra de búsqueda para admins */}
       {!isJugador && (
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <div className="relative">
             <input
               type="text"
@@ -343,6 +431,30 @@ function Jugadores() {
             <svg className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
+          </div>
+          
+          {/* Controles de ordenamiento */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-sm font-medium text-gray-700">Ordenar por:</span>
+            {[
+              { campo: 'nombre', label: 'Nombre' },
+              { campo: 'apellido', label: 'Apellido' },
+              { campo: 'estado', label: 'Estado' },
+              { campo: 'multas', label: 'Multas' },
+              { campo: 'numero_camiseta', label: '#' }
+            ].map(({ campo, label }) => (
+              <button
+                key={campo}
+                onClick={() => manejarOrdenamiento(campo)}
+                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                  ordenarPor === campo
+                    ? 'bg-blue-100 text-blue-700 border-blue-300'
+                    : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                }`}
+              >
+                {label} {ordenarPor === campo && (direccionOrden === 'asc' ? '↑' : '↓')}
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -370,20 +482,20 @@ function Jugadores() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <HeaderOrdenable campo="nombre">
                   Jugador
-                </th>
+                </HeaderOrdenable>
                 {MESES.map((mes, index) => (
                   <th key={index + 1} className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {mes}
                   </th>
                 ))}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <HeaderOrdenable campo="multas">
                   Multas
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                </HeaderOrdenable>
+                <HeaderOrdenable campo="estado">
                   Estado
-                </th>
+                </HeaderOrdenable>
                 {!isJugador && isAdmin && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Acciones
@@ -392,7 +504,7 @@ function Jugadores() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {jugadoresFiltrados.filter(jugador => jugador && jugador.cedula).map((jugador) => (
+              {jugadoresFiltraysOrdenados.filter(jugador => jugador && jugador.cedula).map((jugador) => (
                 <tr key={jugador.cedula} className={`hover:bg-gray-50 ${!jugador.activo ? 'opacity-60' : ''}`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -405,7 +517,7 @@ function Jugadores() {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {jugador.nombre || 'Sin nombre'}
+                          {(jugador.nombre || 'Sin nombre')} {(jugador.apellido || '')}
                         </div>
                         <div className="text-sm text-gray-500">
                           {jugador.nombre_inscripcion || 'Sin alias'} - #{jugador.numero_camiseta || 'N/A'}
@@ -639,6 +751,19 @@ function Jugadores() {
                         required
                         value={formData.nombre_inscripcion}
                         onChange={(e) => setFormData({ ...formData, nombre_inscripcion: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Recomendado por (Cédula)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.recomendado_por_cedula || ''}
+                        onChange={(e) => setFormData({ ...formData, recomendado_por_cedula: e.target.value })}
+                        placeholder="Cédula del jugador que lo recomienda"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
