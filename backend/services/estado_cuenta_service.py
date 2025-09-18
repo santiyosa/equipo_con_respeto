@@ -43,34 +43,44 @@ class EstadoCuentaService:
     def _verificar_mensualidades_al_dia(jugador: Jugador, db: Session) -> bool:
         """
         Verifica si un jugador regular tiene las mensualidades al día
-        desde su fecha de inscripción hasta el mes actual.
+        desde su fecha de inscripción (incluyendo ese mes) hasta el mes vigente (incluyendo el mes actual).
+        Si falta el pago del mes vigente, no está al día.
         """
         año_actual = datetime.now().year
         mes_actual = datetime.now().month
-        
+
         # Obtener año y mes de inscripción
         fecha_inscripcion = jugador.fecha_inscripcion
         año_inscripcion = fecha_inscripcion.year
         mes_inscripcion = fecha_inscripcion.month
-        
-        # Calcular meses que debe tener pagados
+
+        # Calcular meses que debe tener pagados (incluye mes de inscripción y mes vigente)
         meses_debe_pagar = EstadoCuentaService._calcular_meses_a_pagar(
             año_inscripcion, mes_inscripcion, año_actual, mes_actual
         )
-        
+
         # Obtener mensualidades pagadas
         mensualidades_pagadas = db.query(Mensualidad).filter(
             Mensualidad.jugador_cedula == jugador.cedula
         ).all()
-        
+
         # Crear set de (año, mes) pagados
         meses_pagados = {(m.ano, m.mes) for m in mensualidades_pagadas}
-        
+
+        # Si no es arquero y no tiene ningún mes pagado, no está al día
+        posicion_actual = getattr(jugador, 'posicion', None)
+        if (posicion_actual is None or posicion_actual != "arquero") and len(meses_pagados) == 0:
+            return False
+
         # Verificar si todos los meses requeridos están pagados
         for año, mes in meses_debe_pagar:
             if (año, mes) not in meses_pagados:
                 return False
-        
+
+        # Validar que el mes vigente esté pagado
+        if (año_actual, mes_actual) not in meses_pagados:
+            return False
+
         return True
     
     @staticmethod
