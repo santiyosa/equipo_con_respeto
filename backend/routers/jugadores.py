@@ -103,7 +103,8 @@ async def exportar_listado_basico_pdf(
         jugadores = crud.get_jugadores(db)
         if solo_activos:
             # Filtrar solo jugadores activos (excluir inactivos/retirados)
-            jugadores = [j for j in jugadores if getattr(j, 'estado_cuenta', True)]
+            from services.estado_cuenta_service import EstadoCuentaService
+            jugadores = [j for j in jugadores if EstadoCuentaService.calcular_estado_al_dia(j, db)]
         
         if not jugadores:
             raise HTTPException(status_code=404, detail="No hay jugadores para exportar")
@@ -215,7 +216,8 @@ async def exportar_listado_completo_pdf(
         jugadores = crud.get_jugadores(db)
         if solo_activos:
             # Filtrar solo jugadores activos (excluir inactivos/retirados)
-            jugadores = [j for j in jugadores if getattr(j, 'estado_cuenta', True)]
+            from services.estado_cuenta_service import EstadoCuentaService
+            jugadores = [j for j in jugadores if EstadoCuentaService.calcular_estado_al_dia(j, db)]
         
         if not jugadores:
             raise HTTPException(status_code=404, detail="No hay jugadores para exportar")
@@ -290,7 +292,8 @@ async def exportar_listado_completo_pdf(
             if multas_pendientes > 0:
                 p.drawString(70, y_position, f"Total multas pendientes: ${total_multas:,.0f}")
                 y_position -= 15
-            p.drawString(70, y_position, f"Estado en equipo: {'ACTIVO' if getattr(jugador, 'estado_cuenta', True) else 'INACTIVO'}")
+            from services.estado_cuenta_service import EstadoCuentaService
+            p.drawString(70, y_position, f"Estado en equipo: {'ACTIVO' if EstadoCuentaService.calcular_estado_al_dia(jugador, db) else 'INACTIVO'}")
             y_position -= 25
         
         p.save()
@@ -357,24 +360,27 @@ async def exportar_listado_pagos_mensuales_pdf(
         table_data = [headers]
         
         # Datos de jugadores
+        from services.estado_cuenta_service import EstadoCuentaService
+        from models import Jugador
         for jugador_data in jugadores_pagos:
             nombre = jugador_data['nombre_inscripcion'] or jugador_data['nombre']
             row = [nombre[:15]]  # Nombre corto
-            
+
             # Estados de pago por mes
             for mes in range(1, 13):
                 mes_data = jugador_data['meses'].get(str(mes), {'pagado': False})
                 estado = '✓' if mes_data['pagado'] else '✗'
                 row.append(estado)
-            
+
             # Multas pendientes
             multas = f"${jugador_data['valor_multas_pendientes']:,.0f}" if jugador_data['valor_multas_pendientes'] > 0 else "-"
             row.append(multas)
-            
+
             # Estado general
-            estado = 'Al día' if jugador_data['estado_cuenta'] else 'Pendiente'
+            jugador_obj = db.query(Jugador).filter(Jugador.cedula == jugador_data['cedula']).first()
+            estado = 'Al día' if jugador_obj and EstadoCuentaService.calcular_estado_al_dia(jugador_obj, db) else 'Pendiente'
             row.append(estado)
-            
+
             table_data.append(row)
         
         # Crear tabla
