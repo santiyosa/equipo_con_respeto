@@ -116,7 +116,20 @@ function Layout({ children, currentPage, setCurrentPage }: LayoutProps) {
                   <span className="text-2xl">⚽</span>
                 </div>
                 <div className="ml-3">
-                  <h1 className="text-xl font-bold text-gray-900">Gestión Deportiva</h1>
+                  <div className="flex items-center space-x-3">
+                    <h1 className="text-xl font-bold text-gray-900">Gestión Deportiva</h1>
+                    <a
+                      href="/reglamento_equipo.pdf"
+                      download
+                      className="inline-flex items-center px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded hover:bg-blue-200 border border-blue-200 transition-colors"
+                      title="Descargar normativa del equipo"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v16h16V4H4zm4 8v4m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                      Descargar Normativa
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
