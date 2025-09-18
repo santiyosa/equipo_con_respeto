@@ -93,19 +93,24 @@ def get_estado_cuenta_jugador(db: Session, cedula: str) -> schemas.EstadoCuentaJ
     total_pagado = sum(m.valor for m in meses_pagados)
     total_multas_pendientes = detalles_estado["valor_multas_pendientes"]
 
-    # Determinar estado usando la nueva lógica
+    # Determinar estado usando la lógica centralizada
     if detalles_estado["al_dia"]:
         estado = "AL DÍA"
     else:
-        if str(jugador.posicion) == "arquero":
-            estado = "ARQUERO CON MULTAS PENDIENTES"
+        # Si tiene multas pendientes y mensualidades pendientes
+        if total_multas_pendientes > 0 and detalles_estado.get("mensualidades_pendientes", 0) > 0:
+            estado = "DEBE MENSUALIDADES Y TIENE MULTAS"
+        # Si solo tiene multas pendientes
         elif total_multas_pendientes > 0:
-            if "mensualidades_pendientes" in detalles_estado and detalles_estado["mensualidades_pendientes"] > 0:
-                estado = "DEBE MENSUALIDADES Y TIENE MULTAS"
-            else:
-                estado = "TIENE MULTAS PENDIENTES"
-        else:
+            estado = "TIENE MULTAS PENDIENTES"
+        # Si solo tiene mensualidades pendientes
+        elif detalles_estado.get("mensualidades_pendientes", 0) > 0:
             estado = "DEBE MENSUALIDADES"
+        # Si es arquero y tiene multas
+        elif str(jugador.posicion) == "arquero" and total_multas_pendientes > 0:
+            estado = "ARQUERO CON MULTAS PENDIENTES"
+        else:
+            estado = "NO ESTÁ AL DÍA"
 
     return schemas.EstadoCuentaJugador(
         jugador_cedula=str(jugador.cedula),
