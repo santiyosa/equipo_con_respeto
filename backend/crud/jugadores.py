@@ -23,16 +23,21 @@ def create_jugador(db: Session, jugador: schemas.JugadorCreate):
     # Crear el jugador con credenciales automáticas
     jugador_data = jugador.dict()
     jugador_data['password'] = password_hash  # Cédula como contraseña inicial
-    
+
+    # Corregir recomendado_por_cedula si viene como 'NULL', '' o no existe
+    recomendado = jugador_data.get('recomendado_por_cedula', None)
+    if recomendado in [None, '', 'NULL', 'null', 0, '0']:
+        jugador_data['recomendado_por_cedula'] = None
+
     db_jugador = models.Jugador(**jugador_data)
     db.add(db_jugador)
     db.commit()
     db.refresh(db_jugador)
-    
+
     print(f"✅ Jugador creado: {jugador.nombre}")
     print(f"📧 Email: {jugador.email}")
     print(f"🔑 Contraseña inicial: {jugador.cedula} (puede cambiarla con recuperar contraseña)")
-    
+
     return db_jugador
 
 def buscar_jugadores(db: Session, termino: str):
