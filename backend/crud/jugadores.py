@@ -14,7 +14,19 @@ def get_jugador_by_cedula(db: Session, cedula: str):
     return db.query(models.Jugador).filter(models.Jugador.cedula == cedula).first()
 
 def get_jugadores(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Jugador).offset(skip).limit(limit).all()
+    jugadores = db.query(models.Jugador).offset(skip).limit(limit).all()
+    resultado = []
+    for jugador in jugadores:
+        detalles_estado = EstadoCuentaService.obtener_detalles_estado(jugador, db)
+        jugador_dict = jugador.__dict__.copy()
+        jugador_dict['estado'] = detalles_estado.get('al_dia', False) and 'AL DÍA' or (
+            'DEBE MENSUALIDADES Y TIENE MULTAS' if detalles_estado.get('mensualidades_pendientes', 0) > 0 and detalles_estado.get('multas_pendientes', 0) > 0 else
+            'TIENE MULTAS PENDIENTES' if detalles_estado.get('multas_pendientes', 0) > 0 else
+            'DEBE MENSUALIDADES' if detalles_estado.get('mensualidades_pendientes', 0) > 0 else
+            'NO ESTÁ AL DÍA'
+        )
+        resultado.append(jugador_dict)
+    return resultado
 
 def create_jugador(db: Session, jugador: schemas.JugadorCreate):
     # Crear hash de la contraseña inicial (cédula)

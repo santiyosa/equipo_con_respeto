@@ -47,6 +47,7 @@ class Jugador(JugadorBase):
     nombre_inscripcion: str
     fecha_inscripcion: date
     estado_cuenta: Optional[bool] = None
+    estado: Optional[str] = None
     created_at: datetime
 
     class Config:
