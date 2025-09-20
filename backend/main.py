@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env
-load_dotenv()
+load_dotenv(encoding='latin-1', override=True)
 
 from routers.pagos import router as pagos_router
 from routers.jugadores import router as jugadores_router
@@ -20,8 +20,6 @@ from routers.dashboard import router as dashboard_router
 from routers.configuraciones import router as configuraciones_router
 from routers.articulos_normativa import router as articulos_normativa_router
 
-# Crear todas las tablas en la base de datos
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Equipo de Fútbol")
 
@@ -32,7 +30,11 @@ CORS_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174", 
     "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174"
+    "http://127.0.0.1:5174",
+    "https://localhost:5173",
+    "https://localhost:5174",
+    "https://127.0.0.1:5173",
+    "https://127.0.0.1:5174"
 ]
 
 # Agregar orígenes de producción si están configurados

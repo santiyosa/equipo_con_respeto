@@ -44,7 +44,7 @@ Write-Host "Directorio del proyecto: $projectPath" -ForegroundColor Cyan
 
 # Iniciar Backend
 Write-Host "Iniciando Backend (Puerto 8005)..." -ForegroundColor Blue
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$projectPath\backend'; python -m uvicorn main:app --reload --host 0.0.0.0 --port 8005; Read-Host 'Presiona Enter para cerrar'" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$projectPath\backend'; python -m uvicorn main:app --host 0.0.0.0 --port 8005; Read-Host 'Presiona Enter para cerrar'" -WindowStyle Normal
 
 # Esperar un momento para que el backend se inicie
 Start-Sleep -Seconds 3

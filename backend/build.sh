@@ -16,18 +16,18 @@ if [ -z "$DATABASE_URL" ]; then
 fi
 echo "✅ DATABASE_URL configurada"
 
-# Crear tablas en PostgreSQL (sin verificación de conexión para evitar fallos)
-echo "🗄️  Inicializando base de datos..."
+
+# Probar conexión a la base de datos PostgreSQL
+echo "🗄️  Probando conexión a la base de datos..."
 python -c "
-import models
 from database import engine
 try:
-    print('Creando todas las tablas...')
-    models.Base.metadata.create_all(bind=engine)
-    print('✅ Tablas creadas exitosamente')
+    with engine.connect() as conn:
+        result = conn.execute('SELECT 1')
+        print('✅ Conexión exitosa a la base de datos. Resultado:', list(result)[0][0])
 except Exception as e:
-    print(f'⚠️  Warning durante creación de tablas: {e}')
-    print('✅ Continuando con el despliegue...')
+    print(f'❌ Error de conexión a la base de datos: {e}')
+    exit(1)
 "
 
 echo "✅ Build completado exitosamente"

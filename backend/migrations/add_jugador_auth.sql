@@ -1,5 +1,4 @@
 -- Agregar campos de autenticación a la tabla jugadores
--- SQLite requiere un enfoque especial para agregar columnas UNIQUE
 
 -- Paso 1: Agregar columnas sin restricción UNIQUE
 ALTER TABLE jugadores ADD COLUMN email TEXT;

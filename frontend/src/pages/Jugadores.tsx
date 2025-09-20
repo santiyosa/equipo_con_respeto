@@ -19,6 +19,7 @@ interface Jugador {
   contacto_emergencia_telefono: string
   recomendado_por_cedula?: string // Campo para la cédula del recomendador
   estado_cuenta: boolean
+  estado?: string
   activo: boolean
   fecha_inscripcion: string
   created_at: string
@@ -577,7 +578,7 @@ function Jugadores() {
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {jugador.estado_cuenta ? '💰 Al día' : '⚠️ Pendiente'}
+                        {jugador.estado ? jugador.estado : (jugador.estado_cuenta ? '💰 Al día' : '⚠️ Pendiente')}
                       </div>
                     </div>
                   </td>
@@ -692,7 +693,7 @@ function Jugadores() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Estado de Cuenta</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.estado_cuenta ? 'AL DÍA' : 'CON PENDIENTES'}</p>
+                    <p className="mt-1 text-sm text-gray-900">{selectedJugador.estado ? selectedJugador.estado : (selectedJugador.estado_cuenta ? 'AL DÍA' : 'CON PENDIENTES')}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Estado</label>

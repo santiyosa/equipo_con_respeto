@@ -16,4 +16,3 @@ COMMENT ON COLUMN jugadores.rh IS 'Tipo de sangre del jugador (ej: O+, A-, B+, e
 SELECT COUNT(*) as total_jugadores FROM jugadores;
 
 -- Mostrar la estructura actualizada de la tabla
--- .schema jugadores  -- Solo en SQLite

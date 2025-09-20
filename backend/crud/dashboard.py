@@ -62,7 +62,7 @@ def obtener_resumen_dashboard(db: Session) -> dashboard_schemas.ResumenDashboard
     except Exception as e:
         raise Exception(f"Error al obtener resumen del dashboard: {str(e)}")
     
-    # Enfoque simplificado: usar múltiples consultas simples para compatibilidad con SQLite
+    
     
     # 1. Obtener todos los jugadores básicos
     jugadores_base = db.query(
